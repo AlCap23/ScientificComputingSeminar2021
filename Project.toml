@@ -1,2 +1,7 @@
+name = "ScientificComputing"
+uuid = "8e449e99-2881-4aa5-beea-e3540b2c1775"
+authors = ["AlCap23 <julius.martensen@gmail.com>"]
+version = "0.1.0"
+
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
