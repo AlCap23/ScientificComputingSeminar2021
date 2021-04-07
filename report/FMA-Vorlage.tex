@@ -1,0 +1,80 @@
+% Otto-von-Guericke-Universität Magdeburg
+% Fakultät für Mathematik
+%
+% Vorschlag zur Gestaltung von Abschlussarbeiten mit LaTeX
+%
+%
+%\documentclass[a4paper, 12pt]{scrreprt} % KOMA-Script-Report
+%
+\documentclass[a4paper, 12pt]{scrartcl} % KOMA-Script-Article 
+%                                      (dann keine \chapter möglich!!!)
+%                                      (erfodert Anpassung in FMA-commands.tex) 
+%----LaTeX-Pakete-----------------
+\usepackage[ngerman,american]{babel}   %Ueberschriften in Englisch
+%\usepackage[american,ngerman]{babel}  %Ueberschriften in Deutsch
+\usepackage[utf8x]{inputenc} % Quelltext mit Umlauteingabe
+
+\usepackage{geometry}
+\geometry{twoside, outer=25mm, inner=30mm, top=30mm, bottom=30mm} % zweiseitig
+% \geometry{outer=25mm, inner=30mm, top=30mm, bottom=30mm}        % einseitig
+\usepackage{latexsym}          % spezielle Mathematik-Symbole
+\usepackage{graphicx}          % zum Einbinden von Bildern
+\usepackage{amsmath, amssymb}  % LaTeX-Erweiterungen der AMS
+
+% ----Einbinden von pdf-Dateien oder einzelnen Seiten daraus
+\usepackage{pdfpages}
+\usepackage{xspace}
+\usepackage{setspace}        % zum Variieren des Zeilenabstandes
+% Anwendung im Text:  \includepdf[pages={7, 9-12}]{Name der pdf-Datei}
+%------
+% Kopf- und Fußzeilen mit scrpage2 ---------------*Beginn*------------
+\usepackage[automark,headsepline]{scrpage2}
+\automark[section]{chapter}
+\pagestyle{scrheadings}			
+\clearscrheadfoot
+\ihead[]{\headmark}
+\cfoot[\hfill -- \thepage{} -- \hfill]{\hfill -- \thepage{} -- \hfill}
+\setkomafont{pagefoot}{\normalfont\sffamily}
+% Kopf- und Fußzeilen mit scrpage2 ---------------*Ende* --------------
+\setlength{\parindent}{0cm}
+\setcounter{tocdepth}{4}       % 4 Gliederungsebenen in das Inhaltsverzeichnis
+\setcounter{secnumdepth}{3}    % 4 (!) Gliederungsebenen werden nummeriert(0-3) 
+\input{FMA-commands}           % hilfreiche LaTeX-Befehlsabkürzungen
+% ------------------------------------------------------------------------------
+%
+%###############################################################################
+\begin{document}
+\pagenumbering{Roman}
+\input{FMA-titlepage4}
+\tableofcontents
+\clearpage
+% \addcontentsline{toc}{section}{Abbildungsverzeichnis}
+% \listoffigures
+% \cleardoublepage
+\pagenumbering{arabic}
+\setcounter{page}{1}      %Beginn der Textseitenzaehlung
+% ------------------------------------------------------------------------------
+% hier beginnen die einzelnen Kapitel der Arbeit
+\input{contents}
+% 
+\newpage
+
+\section*{Erklärung}		
+\thispagestyle{empty}				
+
+Hiermit erkläre ich, dass ich die vorliegende Arbeit selbstständig und ohne
+Benutzung anderer als der angegebenen Quellen und Hilfsmittel angefertigt habe.
+\newline\newline 
+Ort, Datum, Unterschrift
+\end{document}
+% for emacs user
+%%% Local Variables: 
+%%% mode:latex
+%%% TeX-master:t
+%%% TeX-PDF-mode:t
+%%% auto-fill-function:nil
+%%% mode:auto-fill
+%%% flyspell-mode:nil
+%%% mode:flyspell
+%%% ispell-local-dictionary: "american"
+%%% End: 
