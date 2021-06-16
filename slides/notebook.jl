@@ -119,7 +119,8 @@ begin
 end
 
 # ╔═╡ d50f89d9-06fe-402f-8613-d71591bdf9d2
-(@bind comparision_language_1 html"<select><option value='text_c'>C</option><option 		value='text_cpp'>C++</option><option 	value='text_python'>Python</option</select>")
+md""" Let's compare Julia with $(@bind comparision_language_1 html"<select><option value='text_c'>C</option><option 		value='text_cpp'>C++</option><option 	value='text_python'>Python</option</select>") 
+"""
 
 # ╔═╡ 19815c4f-b3ec-4708-aab8-3219b4ac5a77
 TwoColumn(comp_lang[comparision_language_1], text_julia)
@@ -130,23 +131,20 @@ md""" ### Julia : Goals
 
 """
 
-# ╔═╡ bd0fe52b-444e-442c-89c5-ba84d8bad709
-begin
-	
-	md""" ### Benchmarks
-	![Julia Microbenchmarks](https://julialang.org/assets/benchmarks/benchmarks.svg)
-	Microbenchmarks of Julia vs. different Languages as currently available [here](https://julialang.org/benchmarks/)
-	"""
-end
-
-# ╔═╡ 4ccb9374-f661-47b2-8f25-3818c78d5cf3
-md""" **Caveat** 
-
-Most commonly, new users consider Julia to be slow due to a first function call. This is due to the compilation of each method happening at compile level. 
+# ╔═╡ b7d2a5f4-c6f9-43ef-9beb-38f833b5d13c
+md""" ### The need for speed
 """
 
-# ╔═╡ f8ba1333-2805-4696-8b92-956e14fc6309
-md"
+# ╔═╡ 2790a41c-cb5b-4eed-bb6e-7687b7c01824
+# Consider the function 
+f(x,y) = exp(-(x-y)^2)
+
+# ╔═╡ 4ccb9374-f661-47b2-8f25-3818c78d5cf3
+Foldable(
+	"Caveat",
+md"""
+Most commonly, new users consider Julia to be slow due to a first function call. This is due to the compilation of each method happening at compile level. 
+
 ```
 f(x) = sum(x.^2)
 x = randn(Float64, 10000);
@@ -162,15 +160,8 @@ x = randn(Float64, 10000);
 10105.128612847464 # <- Result
 
 ```
-"
-
-# ╔═╡ b7d2a5f4-c6f9-43ef-9beb-38f833b5d13c
-md""" ### The need for speed
 """
-
-# ╔═╡ 2790a41c-cb5b-4eed-bb6e-7687b7c01824
-# Consider the function 
-f(x,y) = exp(-(x-y)^2)
+	)
 
 # ╔═╡ 014a0e4c-abaf-445d-9de8-18cc1fcf7e1d
 begin
@@ -179,10 +170,47 @@ begin
 	x̂ = randn(100000)
 end
 
+# ╔═╡ fd8dd3db-aeb6-4105-b4c2-c9eca716ebed
+Foldable("Referecing", 
+	md"""
+	By default, we reference rather than copy. Consider
+	
+	```
+	x = randn(10);
+	x[1] = 1; # Set the first element to 1
+	v = x[1] # Set v <- x[1]
+	x[1] = 2 # Set x[1] to 2
+	v # Will return 2
+	```
+	"""
+	)
+
 # ╔═╡ e158522d-fe91-49fb-bf98-1fcf909f0223
 md""" The error above is due to the missing vectorization of the function `f`.
 We can add this quite easily.
 """
+
+# ╔═╡ 363eebd3-0c8d-49c3-9d8a-9e6aaf6fce8b
+Foldable("Memory Layout", 
+	md"""
+	Julia is **column major** oriented. Meaning internally, the entries of an array get stored
+	
+	```
+	x[1,1] x[2,1] x[3,1] x[1,2] x[2,2] x[3,2] ...
+	```
+	
+	for speed ups always try to keep this in mind.
+	"""
+	)
+
+# ╔═╡ bd0fe52b-444e-442c-89c5-ba84d8bad709
+begin
+	
+	md""" ### Benchmarks
+	![Julia Microbenchmarks](https://julialang.org/assets/benchmarks/benchmarks.svg)
+	Microbenchmarks of Julia vs. different Languages as currently available [here](https://julialang.org/benchmarks/)
+	"""
+end
 
 # ╔═╡ f51666f4-2896-4ba6-8f92-63795fb43d3a
 md""" ### Batteries included
@@ -379,10 +407,30 @@ function fastf(x::AbstractVector{X}, y::AbstractVector{Y}) where {X, Y}
 	return res
 end
 
+# ╔═╡ 0c909529-b296-4a61-a369-e0d129b37501
+# Mutating function and even faster because we assume the same type
+function fastf!(res::AbstractVector{T}, x::AbstractVector{T}, y::AbstractVector{T}) where {T}
+	# Vectorize
+	# We assume length(x) == length(y) -> Errors are not catched!
+	# Additionally we add the @simd macro to instruct the compiler
+	# to parallelize
+	@inbounds for i in 1:length(x)
+		# If we want, we could also use the @fastmath macro here
+		# which does not improve our performance ( in this case )
+		res[i] = f(x[i], y[i])
+	end
+	# The return argument
+	return 
+end
+
 # ╔═╡ e70fd29d-6ee0-4011-9f45-df4d4e72d6d4
 begin
-	@time f(x, x̂)
-	@time fastf(x, x̂) 
+	# Benchmarking
+	mybench(f::Function, args...) = @time f(args...)
+	#@time f(x, x̂)
+	mybench(fastf, x, x̂) 
+	res = similar(x̂)
+	mybench(fastf!, res, convert.(eltype(x̂), x), x̂)
 end
 
 # ╔═╡ 97306279-df1f-4bb2-9d51-8e6345808100
@@ -399,11 +447,11 @@ $\min_\Xi \quad \lVert \Xi \rVert_0, \quad \text{s.t.} \quad Y = \Psi(X) \Xi$
 **Pseudo-Code**
 
 + Compare each element of the normalized dictionary $\Psi(X)$ to the signal $Y$ via the inner product
-+ Use the largest resemblance to as a coefficient $\xi$
++ Use the largest resemblance as a coefficient $\xi$
 + Subtract the recovered signal and repeat until converged
 
 
-We will use a more sophisticated version [based on this paper](https://asp-eurasipjournals.springeropen.com/track/pdf/10.1186/s13634-020-00680-9.pdf)
+We will use a more sophisticated version [based on this paper](https://asp-eurasipjournals.springeropen.com/track/pdf/10.1186/s13634-020-00680-9.pdf) where our goal is to find the right support $\Lambda$ of the coefficient vector.
 
 
 *Note*
@@ -468,25 +516,26 @@ function gOMP(y0::AbstractVector, Ψ::AbstractMatrix, K::Int = 2, S::Int = K; ma
 end
 
 # ╔═╡ 2ebc2b89-27f2-4abc-816e-7950bce2267f
-# Independent variable
-t = 0.0:0.1:10.0; 
-
-# ╔═╡ df5a33f6-e069-4814-972f-eb2f2639e2f6
-# Signal
-y = 3.0*sin.(t).*exp.(-t./50.0) + 4.0*cos.(t) - t
-
-# ╔═╡ e2c543c7-5974-4b5f-ba3f-b2d1a008008b
-# Dictionary
-ψ = [
-	t t.^2 t.^3 sin.(t) ones(eltype(y), length(y)) cos.(t) exp.(t) sin.(t).*exp.(-t./50.0)
+# Generate some test data
+begin
+	# Independent variable
+	t = 0.0:0.1:10.0; 
+	# Signal
+	y = 3.0*sin.(t).*exp.(-t./50.0) + 4.0*cos.(t) - t;
+	# Dictionary
+	ψ = [
+		t t.^2 t.^3 sin.(t) ones(eltype(y), length(y)) cos.(t) exp.(t) sin.(t).*exp.(-t./50.0)
 	];
+	nothing
+end
 
 # ╔═╡ f7451fdb-b5ac-4bf7-82f2-fed46ed98e99
-md""" Lets explore the data by adding a slider for the sparsity.
+md""" Lets explore the data by adding a slider for the sparsity and a noise level.
 
 Sparsity : $(@bind k Slider(1:size(ψ, 2)))
 
 Noise : $(@bind n Slider(0.0:0.01:1.0))
+
 """
 
 # ╔═╡ dac7e4e0-2532-45ff-8b0f-1d8a92e90ccf
@@ -514,6 +563,9 @@ begin
 	a = gOMP(ynoise, ψ, k)
 	plot(t, ynoise, label = "Original Signal with $n percent noise", title = "Fit")
 	plot!(t, ψ*a, label = "Recovered with  $(sum(abs.(a) .> 1e-10)) / $k elements ")
+	annotate!([(0.0, -14.0, Plots.text("Coefficients : $(round.(a, digits = 2))", 10, :black, :left))])
+
+	
 end
 
 # ╔═╡ 6e8805fe-05e8-49b5-a231-1efb995da173
@@ -522,27 +574,37 @@ Y = vcat([(y+5e-1*randn(size(y)))' for i in 1:100]...)
 # ╔═╡ 05cccc05-89a8-48c9-b1ac-a8ff6b5089a9
 @time gOMP(Y, ψ, 4)
 
+# ╔═╡ 1d3939e1-bcec-46fd-84e0-b84abfbb3dc9
+md""" ### Ecosystem & Package Development
+
+[JuliaHub](https://juliahub.com/ui/Packages) provides us with a nice, searchable database for all registered packages.
+
+As an example for Package Development, we can have a look at [DataDrivenDiffEq.jl](https://github.com/SciML/DataDrivenDiffEq.jl).
+"""
+
 # ╔═╡ Cell order:
 # ╟─7a5e88a0-cdc0-11eb-23d1-8b1a18ca5072
-# ╠═a78a6056-49dc-4315-b12a-f290a658fc2b
+# ╟─a78a6056-49dc-4315-b12a-f290a658fc2b
 # ╟─11152d22-899f-4a01-bec9-8ffe887306ad
 # ╟─1488e403-7d51-4bc5-b914-19b98df9ed51
 # ╟─b9fd4165-9e51-48b1-81f0-4c5812ad26b9
 # ╟─d50f89d9-06fe-402f-8613-d71591bdf9d2
 # ╟─19815c4f-b3ec-4708-aab8-3219b4ac5a77
 # ╟─b0425c95-3eee-4461-9a48-3727fc2f6832
-# ╟─bd0fe52b-444e-442c-89c5-ba84d8bad709
-# ╟─4ccb9374-f661-47b2-8f25-3818c78d5cf3
-# ╟─f8ba1333-2805-4696-8b92-956e14fc6309
 # ╟─b7d2a5f4-c6f9-43ef-9beb-38f833b5d13c
 # ╠═2790a41c-cb5b-4eed-bb6e-7687b7c01824
 # ╠═7584eb8c-9e6a-43cc-859a-f2940adadad0
+# ╟─4ccb9374-f661-47b2-8f25-3818c78d5cf3
 # ╠═d4ec78eb-10ee-4b0f-812f-0c79f5dfce91
 # ╠═014a0e4c-abaf-445d-9de8-18cc1fcf7e1d
+# ╟─fd8dd3db-aeb6-4105-b4c2-c9eca716ebed
 # ╠═76a0d6b9-f6e6-4e68-9607-17be0d8b8c19
 # ╟─e158522d-fe91-49fb-bf98-1fcf909f0223
 # ╟─70764379-8132-4ca3-aee6-87871c2132a2
+# ╟─0c909529-b296-4a61-a369-e0d129b37501
+# ╟─363eebd3-0c8d-49c3-9d8a-9e6aaf6fce8b
 # ╠═e70fd29d-6ee0-4011-9f45-df4d4e72d6d4
+# ╟─bd0fe52b-444e-442c-89c5-ba84d8bad709
 # ╟─f51666f4-2896-4ba6-8f92-63795fb43d3a
 # ╠═c78dee8d-9ff2-441f-9f5b-fc60f413869a
 # ╠═3d110ae2-c8d0-4355-bccc-7d7a89224453
@@ -564,13 +626,12 @@ Y = vcat([(y+5e-1*randn(size(y)))' for i in 1:100]...)
 # ╠═892e2207-b7e0-410c-a22e-93aa185ea858
 # ╠═97306279-df1f-4bb2-9d51-8e6345808100
 # ╟─fb3490f1-0b3a-44b0-9bea-50cb5e530c15
-# ╠═34d14afe-2194-43f0-a829-15276ecca883
+# ╟─34d14afe-2194-43f0-a829-15276ecca883
 # ╠═2ebc2b89-27f2-4abc-816e-7950bce2267f
-# ╠═df5a33f6-e069-4814-972f-eb2f2639e2f6
-# ╠═e2c543c7-5974-4b5f-ba3f-b2d1a008008b
 # ╟─fb971894-a833-4955-93b0-da68c4a71db0
 # ╟─f7451fdb-b5ac-4bf7-82f2-fed46ed98e99
 # ╟─dac7e4e0-2532-45ff-8b0f-1d8a92e90ccf
-# ╠═1679b86e-13ef-48c4-9a05-613387c213f9
+# ╟─1679b86e-13ef-48c4-9a05-613387c213f9
 # ╟─6e8805fe-05e8-49b5-a231-1efb995da173
 # ╠═05cccc05-89a8-48c9-b1ac-a8ff6b5089a9
+# ╟─1d3939e1-bcec-46fd-84e0-b84abfbb3dc9
