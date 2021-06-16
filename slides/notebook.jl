@@ -16,7 +16,12 @@ end
 # ╔═╡ a78a6056-49dc-4315-b12a-f290a658fc2b
 begin
 	using Pluto
+	using PlutoUI
+	
 	using LinearAlgebra
+	using Statistics
+	using Plots
+	plotly()
 	
 	# Some useable definitions for the presentation
 	# Taken from https://andreaskroepelin.de/blog/plutoslides/
@@ -159,6 +164,48 @@ x = randn(Float64, 10000);
 ```
 "
 
+# ╔═╡ b7d2a5f4-c6f9-43ef-9beb-38f833b5d13c
+md""" ### The need for speed
+"""
+
+# ╔═╡ 2790a41c-cb5b-4eed-bb6e-7687b7c01824
+# Consider the function 
+f(x,y) = exp(-(x-y)^2)
+
+# ╔═╡ 014a0e4c-abaf-445d-9de8-18cc1fcf7e1d
+begin
+	# For two arrays
+	x = fill(1, 100000)
+	x̂ = randn(100000)
+end
+
+# ╔═╡ e158522d-fe91-49fb-bf98-1fcf909f0223
+md""" The error above is due to the missing vectorization of the function `f`.
+We can add this quite easily.
+"""
+
+# ╔═╡ f51666f4-2896-4ba6-8f92-63795fb43d3a
+md""" ### Batteries included
+
+Within the [LinearAlgebra](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/) package - included in the standard library - we have BLAS and LAPACK at our fingertips.
+"""
+
+# ╔═╡ c78dee8d-9ff2-441f-9f5b-fc60f413869a
+# Simple dot
+BLAS.dot(10, fill(1.0, 10), 1, fill(1.0, 20), 2)
+
+# ╔═╡ 3d110ae2-c8d0-4355-bccc-7d7a89224453
+# a*x + y
+BLAS.axpy!(2, [1;2;3], [4;5;6])
+
+# ╔═╡ 606e95e0-f8d2-47dd-964c-fc33b72a91d1
+# Solve A X = B via LU(A) and overwrites B with the solution
+begin 
+	A = randn(3,3)
+	B = A * [1 0 0; 0 0 1; 0 1 0] 
+	LAPACK.gesv!(A, B)
+end
+
 # ╔═╡ ff06c5fe-500b-496e-8801-d399f1b2f394
 md""" ### Multiple Dispatch
 """
@@ -298,6 +345,46 @@ end
 # ╔═╡ 892e2207-b7e0-410c-a22e-93aa185ea858
 f(x) = x^2 - 3*x
 
+# ╔═╡ 7584eb8c-9e6a-43cc-859a-f2940adadad0
+# Lets see what happens
+f(0.2, 3.0)
+
+# ╔═╡ d4ec78eb-10ee-4b0f-812f-0c79f5dfce91
+# And under the hood
+@code_native f(0.2, 3.0)
+
+# ╔═╡ 76a0d6b9-f6e6-4e68-9607-17be0d8b8c19
+@time f(x, x̂)
+
+# ╔═╡ 70764379-8132-4ca3-aee6-87871c2132a2
+# Can we get it down? Hide at first
+function fastf(x::AbstractVector{X}, y::AbstractVector{Y}) where {X, Y}
+	# We want a common type
+	T = promote_type(X, Y)
+	# Convert the input to a common type
+	x = convert.(T, x)
+	y = convert.(T, y)
+	# Preallocation of the result
+	res = Vector{T}(undef, length(x))
+	# Vectorize
+	# We assume length(x) == length(y) -> Errors are not catched!
+	# Additionally we add the @simd macro to instruct the compiler
+	# to parallelize
+	@inbounds for i in 1:length(x)
+		# If we want, we could also use the @fastmath macro here
+		# which does not improve our performance ( in this case )
+		res[i] = f(x[i], y[i])
+	end
+	# The return argument
+	return res
+end
+
+# ╔═╡ e70fd29d-6ee0-4011-9f45-df4d4e72d6d4
+begin
+	@time f(x, x̂)
+	@time fastf(x, x̂) 
+end
+
 # ╔═╡ 97306279-df1f-4bb2-9d51-8e6345808100
 f(z)
 
@@ -395,7 +482,15 @@ y = 3.0*sin.(t).*exp.(-t./50.0) + 4.0*cos.(t) - t
 	];
 
 # ╔═╡ f7451fdb-b5ac-4bf7-82f2-fed46ed98e99
-size(ψ)
+md""" Lets explore the data by adding a slider for the sparsity.
+
+Sparsity : $(@bind k Slider(1:size(ψ, 2)))
+
+Noise : $(@bind n Slider(0.0:0.01:1.0))
+"""
+
+# ╔═╡ dac7e4e0-2532-45ff-8b0f-1d8a92e90ccf
+
 
 # ╔═╡ 1679b86e-13ef-48c4-9a05-613387c213f9
 # What about parallism?
@@ -413,15 +508,12 @@ function gOMP(Y::AbstractMatrix, Ψ::AbstractMatrix, args...; kwargs...)
 	return A
 end
 
-# ╔═╡ dac7e4e0-2532-45ff-8b0f-1d8a92e90ccf
-a = gOMP(y, ψ, 3)
-
 # ╔═╡ fb971894-a833-4955-93b0-da68c4a71db0
 begin 
-	using Plots
-	plotly()
-	plot(t, y, label = "Original Signal", title = "Fit")
-	plot!(t, ψ*a, label = "Recovered")
+	ynoise = y .+ n*mean(y, dims = 2).*randn(size(y))
+	a = gOMP(ynoise, ψ, k)
+	plot(t, ynoise, label = "Original Signal with $n percent noise", title = "Fit")
+	plot!(t, ψ*a, label = "Recovered with  $(sum(abs.(a) .> 1e-10)) / $k elements ")
 end
 
 # ╔═╡ 6e8805fe-05e8-49b5-a231-1efb995da173
@@ -432,7 +524,7 @@ Y = vcat([(y+5e-1*randn(size(y)))' for i in 1:100]...)
 
 # ╔═╡ Cell order:
 # ╟─7a5e88a0-cdc0-11eb-23d1-8b1a18ca5072
-# ╟─a78a6056-49dc-4315-b12a-f290a658fc2b
+# ╠═a78a6056-49dc-4315-b12a-f290a658fc2b
 # ╟─11152d22-899f-4a01-bec9-8ffe887306ad
 # ╟─1488e403-7d51-4bc5-b914-19b98df9ed51
 # ╟─b9fd4165-9e51-48b1-81f0-4c5812ad26b9
@@ -442,6 +534,19 @@ Y = vcat([(y+5e-1*randn(size(y)))' for i in 1:100]...)
 # ╟─bd0fe52b-444e-442c-89c5-ba84d8bad709
 # ╟─4ccb9374-f661-47b2-8f25-3818c78d5cf3
 # ╟─f8ba1333-2805-4696-8b92-956e14fc6309
+# ╟─b7d2a5f4-c6f9-43ef-9beb-38f833b5d13c
+# ╠═2790a41c-cb5b-4eed-bb6e-7687b7c01824
+# ╠═7584eb8c-9e6a-43cc-859a-f2940adadad0
+# ╠═d4ec78eb-10ee-4b0f-812f-0c79f5dfce91
+# ╠═014a0e4c-abaf-445d-9de8-18cc1fcf7e1d
+# ╠═76a0d6b9-f6e6-4e68-9607-17be0d8b8c19
+# ╟─e158522d-fe91-49fb-bf98-1fcf909f0223
+# ╟─70764379-8132-4ca3-aee6-87871c2132a2
+# ╠═e70fd29d-6ee0-4011-9f45-df4d4e72d6d4
+# ╟─f51666f4-2896-4ba6-8f92-63795fb43d3a
+# ╠═c78dee8d-9ff2-441f-9f5b-fc60f413869a
+# ╠═3d110ae2-c8d0-4355-bccc-7d7a89224453
+# ╠═606e95e0-f8d2-47dd-964c-fc33b72a91d1
 # ╟─ff06c5fe-500b-496e-8801-d399f1b2f394
 # ╟─62d14388-0616-4ab3-af97-82e31d380157
 # ╟─148805bf-e3c1-497b-a776-fd997a6d7acd
@@ -463,9 +568,9 @@ Y = vcat([(y+5e-1*randn(size(y)))' for i in 1:100]...)
 # ╠═2ebc2b89-27f2-4abc-816e-7950bce2267f
 # ╠═df5a33f6-e069-4814-972f-eb2f2639e2f6
 # ╠═e2c543c7-5974-4b5f-ba3f-b2d1a008008b
-# ╠═f7451fdb-b5ac-4bf7-82f2-fed46ed98e99
-# ╠═dac7e4e0-2532-45ff-8b0f-1d8a92e90ccf
-# ╠═fb971894-a833-4955-93b0-da68c4a71db0
+# ╟─fb971894-a833-4955-93b0-da68c4a71db0
+# ╟─f7451fdb-b5ac-4bf7-82f2-fed46ed98e99
+# ╟─dac7e4e0-2532-45ff-8b0f-1d8a92e90ccf
 # ╠═1679b86e-13ef-48c4-9a05-613387c213f9
-# ╠═6e8805fe-05e8-49b5-a231-1efb995da173
+# ╟─6e8805fe-05e8-49b5-a231-1efb995da173
 # ╠═05cccc05-89a8-48c9-b1ac-a8ff6b5089a9
