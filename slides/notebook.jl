@@ -63,6 +63,11 @@ Outline
 # ╔═╡ 11152d22-899f-4a01-bec9-8ffe887306ad
 html"<button onclick=present()>Present</button>"
 
+# ╔═╡ afdf3c0f-8f09-425a-9ac9-94d5944c6e91
+md""" # Preface
+![](https://imgs.xkcd.com/comics/real_programmers.png)
+"""
+
 # ╔═╡ 1488e403-7d51-4bc5-b914-19b98df9ed51
 md""" ### Julia - A fresh approach to numerical computation [[1]](https://arxiv.org/abs/1411.1607)
 
@@ -137,7 +142,7 @@ md""" ### The need for speed
 
 # ╔═╡ 2790a41c-cb5b-4eed-bb6e-7687b7c01824
 # Consider the function 
-f(x,y) = exp(-(x-y)^2)
+f(x,y) = exp.(-(x-y).^2)
 
 # ╔═╡ 4ccb9374-f661-47b2-8f25-3818c78d5cf3
 Foldable(
@@ -209,8 +214,20 @@ begin
 	md""" ### Benchmarks
 	![Julia Microbenchmarks](https://julialang.org/assets/benchmarks/benchmarks.svg)
 	Microbenchmarks of Julia vs. different Languages as currently available [here](https://julialang.org/benchmarks/)
+	
+	**BUT** This is an old plot. Be careful.
+	
 	"""
+	
+	
 end
+
+# ╔═╡ bdb0db4b-ac6d-4311-b506-55e82b7974e0
+Foldable("Just In Time (JIT) Compilation", 
+	md"""
+	Julia is just in time compiled, using [LLVM](https://llvm.org/) under the hood. Similar approaches exist for [Matlab](https://de.mathworks.com/products/matlab/matlab-execution-engine.html) and [Python](https://doc.pypy.org/en/latest/architecture.html#jit-compiler). However, these are optional oppose to Julia, where it is the standard. 
+	"""
+	)
 
 # ╔═╡ f51666f4-2896-4ba6-8f92-63795fb43d3a
 md""" ### Batteries included
@@ -379,7 +396,7 @@ f(0.2, 3.0)
 
 # ╔═╡ d4ec78eb-10ee-4b0f-812f-0c79f5dfce91
 # And under the hood
-@code_native f(0.2, 3.0)
+@code_lowered f(0.2, 3.0)
 
 # ╔═╡ 76a0d6b9-f6e6-4e68-9607-17be0d8b8c19
 @time f(x, x̂)
@@ -414,7 +431,7 @@ function fastf!(res::AbstractVector{T}, x::AbstractVector{T}, y::AbstractVector{
 	# We assume length(x) == length(y) -> Errors are not catched!
 	# Additionally we add the @simd macro to instruct the compiler
 	# to parallelize
-	@inbounds for i in 1:length(x)
+	@inbounds @simd for i in 1:length(x)
 		# If we want, we could also use the @fastmath macro here
 		# which does not improve our performance ( in this case )
 		res[i] = f(x[i], y[i])
@@ -505,7 +522,7 @@ function gOMP(y0::AbstractVector, Ψ::AbstractMatrix, K::Int = 2, S::Int = K; ma
 		# Convergence
 		if norm(r,2) < ϵ || sum(Λ) >= S
 			# Just for debug
-			@debug "Early break after $i iterations with $(norm(r,2))"
+			#@debug "Early break after $i iterations with $(norm(r,2))"
 			break
 		end
 	end
@@ -586,6 +603,7 @@ As an example for Package Development, we can have a look at [DataDrivenDiffEq.j
 # ╟─7a5e88a0-cdc0-11eb-23d1-8b1a18ca5072
 # ╟─a78a6056-49dc-4315-b12a-f290a658fc2b
 # ╟─11152d22-899f-4a01-bec9-8ffe887306ad
+# ╟─afdf3c0f-8f09-425a-9ac9-94d5944c6e91
 # ╟─1488e403-7d51-4bc5-b914-19b98df9ed51
 # ╟─b9fd4165-9e51-48b1-81f0-4c5812ad26b9
 # ╟─d50f89d9-06fe-402f-8613-d71591bdf9d2
@@ -600,11 +618,12 @@ As an example for Package Development, we can have a look at [DataDrivenDiffEq.j
 # ╟─fd8dd3db-aeb6-4105-b4c2-c9eca716ebed
 # ╠═76a0d6b9-f6e6-4e68-9607-17be0d8b8c19
 # ╟─e158522d-fe91-49fb-bf98-1fcf909f0223
-# ╟─70764379-8132-4ca3-aee6-87871c2132a2
-# ╟─0c909529-b296-4a61-a369-e0d129b37501
-# ╟─363eebd3-0c8d-49c3-9d8a-9e6aaf6fce8b
+# ╠═70764379-8132-4ca3-aee6-87871c2132a2
+# ╠═0c909529-b296-4a61-a369-e0d129b37501
+# ╠═363eebd3-0c8d-49c3-9d8a-9e6aaf6fce8b
 # ╠═e70fd29d-6ee0-4011-9f45-df4d4e72d6d4
 # ╟─bd0fe52b-444e-442c-89c5-ba84d8bad709
+# ╟─bdb0db4b-ac6d-4311-b506-55e82b7974e0
 # ╟─f51666f4-2896-4ba6-8f92-63795fb43d3a
 # ╠═c78dee8d-9ff2-441f-9f5b-fc60f413869a
 # ╠═3d110ae2-c8d0-4355-bccc-7d7a89224453
@@ -626,12 +645,12 @@ As an example for Package Development, we can have a look at [DataDrivenDiffEq.j
 # ╠═892e2207-b7e0-410c-a22e-93aa185ea858
 # ╠═97306279-df1f-4bb2-9d51-8e6345808100
 # ╟─fb3490f1-0b3a-44b0-9bea-50cb5e530c15
-# ╟─34d14afe-2194-43f0-a829-15276ecca883
+# ╠═34d14afe-2194-43f0-a829-15276ecca883
 # ╠═2ebc2b89-27f2-4abc-816e-7950bce2267f
 # ╟─fb971894-a833-4955-93b0-da68c4a71db0
 # ╟─f7451fdb-b5ac-4bf7-82f2-fed46ed98e99
 # ╟─dac7e4e0-2532-45ff-8b0f-1d8a92e90ccf
-# ╟─1679b86e-13ef-48c4-9a05-613387c213f9
-# ╟─6e8805fe-05e8-49b5-a231-1efb995da173
+# ╠═1679b86e-13ef-48c4-9a05-613387c213f9
+# ╠═6e8805fe-05e8-49b5-a231-1efb995da173
 # ╠═05cccc05-89a8-48c9-b1ac-a8ff6b5089a9
 # ╟─1d3939e1-bcec-46fd-84e0-b84abfbb3dc9
