@@ -551,7 +551,7 @@ md""" Lets explore the data by adding a slider for the sparsity and a noise leve
 
 Sparsity : $(@bind k Slider(1:size(ψ, 2)))
 
-Noise : $(@bind n Slider(0.0:0.01:1.0))
+Noise : $(@bind n Slider(0.0:0.005:0.1))
 
 """
 
