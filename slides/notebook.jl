@@ -51,25 +51,42 @@ begin
 	nothing
 end
 
+# ╔═╡ 11152d22-899f-4a01-bec9-8ffe887306ad
+html"<button onclick=present()>Present</button>"
+
 # ╔═╡ 7a5e88a0-cdc0-11eb-23d1-8b1a18ca5072
-md"# Julia
+md""" # Julia
 
 Outline
 + Julia as a Programming Language
 + Multiple Dispatch vs. Object Oriented Programming
 + Matching Pursuit and Speed-Ups
-"
-
-# ╔═╡ 11152d22-899f-4a01-bec9-8ffe887306ad
-html"<button onclick=present()>Present</button>"
+"""
 
 # ╔═╡ afdf3c0f-8f09-425a-9ac9-94d5944c6e91
 md""" # Preface
 ![](https://imgs.xkcd.com/comics/real_programmers.png)
+
+Everyone is entitled to their personal opinion, workflow and preferences. The focus should be on the scientific progress.
+"""
+
+# ╔═╡ b0425c95-3eee-4461-9a48-3727fc2f6832
+md""" # Julia : Raison d'être and Goals [[5]](https://julialang.org/blog/2012/02/why-we-created-julia/)
+
+*In short, because we are greedy.*
+
++ The speed of C
++ The dynamism of Ruby
++ The obvious syntax of Matlab
++ The generalizability of Python
++ The adhesivity of the Shell
++ ...
+
+
 """
 
 # ╔═╡ 1488e403-7d51-4bc5-b914-19b98df9ed51
-md""" ### Julia - A fresh approach to numerical computation [[1]](https://arxiv.org/abs/1411.1607)
+md""" # Julia - A fresh approach to numerical computation [[1]](https://arxiv.org/abs/1411.1607)
 
 Draft in high level language $\mapsto$ Reimplement in low level Language
 
@@ -129,12 +146,6 @@ md""" Let's compare Julia with $(@bind comparision_language_1 html"<select><opti
 
 # ╔═╡ 19815c4f-b3ec-4708-aab8-3219b4ac5a77
 TwoColumn(comp_lang[comparision_language_1], text_julia)
-
-# ╔═╡ b0425c95-3eee-4461-9a48-3727fc2f6832
-md""" ### Julia : Goals
-
-
-"""
 
 # ╔═╡ b7d2a5f4-c6f9-43ef-9beb-38f833b5d13c
 md""" ### The need for speed
@@ -230,7 +241,7 @@ Foldable("Just In Time (JIT) Compilation",
 	)
 
 # ╔═╡ f51666f4-2896-4ba6-8f92-63795fb43d3a
-md""" ### Batteries included
+md""" # Batteries included
 
 Within the [LinearAlgebra](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/) package - included in the standard library - we have BLAS and LAPACK at our fingertips.
 """
@@ -252,7 +263,7 @@ begin
 end
 
 # ╔═╡ ff06c5fe-500b-496e-8801-d399f1b2f394
-md""" ### Multiple Dispatch
+md""" # Multiple Dispatch
 """
 
 # ╔═╡ 62d14388-0616-4ab3-af97-82e31d380157
@@ -392,14 +403,11 @@ f(x) = x^2 - 3*x
 
 # ╔═╡ 7584eb8c-9e6a-43cc-859a-f2940adadad0
 # Lets see what happens
-f(0.2, 3.0)
+f(1f0, 2)
 
 # ╔═╡ d4ec78eb-10ee-4b0f-812f-0c79f5dfce91
 # And under the hood
 @code_lowered f(0.2, 3.0)
-
-# ╔═╡ 76a0d6b9-f6e6-4e68-9607-17be0d8b8c19
-@time f(x, x̂)
 
 # ╔═╡ 70764379-8132-4ca3-aee6-87871c2132a2
 # Can we get it down? Hide at first
@@ -424,6 +432,9 @@ function fastf(x::AbstractVector{X}, y::AbstractVector{Y}) where {X, Y}
 	return res
 end
 
+# ╔═╡ 76a0d6b9-f6e6-4e68-9607-17be0d8b8c19
+@time fastf(x, x̂)
+
 # ╔═╡ 0c909529-b296-4a61-a369-e0d129b37501
 # Mutating function and even faster because we assume the same type
 function fastf!(res::AbstractVector{T}, x::AbstractVector{T}, y::AbstractVector{T}) where {T}
@@ -445,6 +456,7 @@ begin
 	# Benchmarking
 	mybench(f::Function, args...) = @time f(args...)
 	#@time f(x, x̂)
+	mybench(f, x, x̂)
 	mybench(fastf, x, x̂) 
 	res = similar(x̂)
 	mybench(fastf!, res, convert.(eltype(x̂), x), x̂)
@@ -464,7 +476,7 @@ $\min_\Xi \quad \lVert \Xi \rVert_0, \quad \text{s.t.} \quad Y = \Psi(X) \Xi$
 **Pseudo-Code**
 
 + Compare each element of the normalized dictionary $\Psi(X)$ to the signal $Y$ via the inner product
-+ Use the largest resemblance as a coefficient $\xi$
++ Use the largest resemblance as a coefficient $\xi = \Xi_{i,j}$
 + Subtract the recovered signal and repeat until converged
 
 
@@ -600,15 +612,15 @@ As an example for Package Development, we can have a look at [DataDrivenDiffEq.j
 """
 
 # ╔═╡ Cell order:
-# ╟─7a5e88a0-cdc0-11eb-23d1-8b1a18ca5072
 # ╟─a78a6056-49dc-4315-b12a-f290a658fc2b
 # ╟─11152d22-899f-4a01-bec9-8ffe887306ad
+# ╟─7a5e88a0-cdc0-11eb-23d1-8b1a18ca5072
 # ╟─afdf3c0f-8f09-425a-9ac9-94d5944c6e91
+# ╟─b0425c95-3eee-4461-9a48-3727fc2f6832
 # ╟─1488e403-7d51-4bc5-b914-19b98df9ed51
 # ╟─b9fd4165-9e51-48b1-81f0-4c5812ad26b9
 # ╟─d50f89d9-06fe-402f-8613-d71591bdf9d2
 # ╟─19815c4f-b3ec-4708-aab8-3219b4ac5a77
-# ╟─b0425c95-3eee-4461-9a48-3727fc2f6832
 # ╟─b7d2a5f4-c6f9-43ef-9beb-38f833b5d13c
 # ╠═2790a41c-cb5b-4eed-bb6e-7687b7c01824
 # ╠═7584eb8c-9e6a-43cc-859a-f2940adadad0
@@ -620,8 +632,8 @@ As an example for Package Development, we can have a look at [DataDrivenDiffEq.j
 # ╟─e158522d-fe91-49fb-bf98-1fcf909f0223
 # ╠═70764379-8132-4ca3-aee6-87871c2132a2
 # ╠═0c909529-b296-4a61-a369-e0d129b37501
-# ╠═363eebd3-0c8d-49c3-9d8a-9e6aaf6fce8b
 # ╠═e70fd29d-6ee0-4011-9f45-df4d4e72d6d4
+# ╟─363eebd3-0c8d-49c3-9d8a-9e6aaf6fce8b
 # ╟─bd0fe52b-444e-442c-89c5-ba84d8bad709
 # ╟─bdb0db4b-ac6d-4311-b506-55e82b7974e0
 # ╟─f51666f4-2896-4ba6-8f92-63795fb43d3a
@@ -645,8 +657,8 @@ As an example for Package Development, we can have a look at [DataDrivenDiffEq.j
 # ╠═892e2207-b7e0-410c-a22e-93aa185ea858
 # ╠═97306279-df1f-4bb2-9d51-8e6345808100
 # ╟─fb3490f1-0b3a-44b0-9bea-50cb5e530c15
-# ╠═34d14afe-2194-43f0-a829-15276ecca883
-# ╠═2ebc2b89-27f2-4abc-816e-7950bce2267f
+# ╟─34d14afe-2194-43f0-a829-15276ecca883
+# ╟─2ebc2b89-27f2-4abc-816e-7950bce2267f
 # ╟─fb971894-a833-4955-93b0-da68c4a71db0
 # ╟─f7451fdb-b5ac-4bf7-82f2-fed46ed98e99
 # ╟─dac7e4e0-2532-45ff-8b0f-1d8a92e90ccf
