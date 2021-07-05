@@ -2,12 +2,15 @@
 
 Contains all the sources for the report, slides and the scripts.
 
-To evalute the code, simply add this repository via
+As of now, the best way to use this repository is to `clone` it, navigate into the corresponding folder and
 
 ```Julia
 using Pkg;
-Pkg.add(url="https://github.com/AlCap23/ScientificComputingSeminar2021.git")
+Pkg.activate()
+Pkg.instantiate()
 ```
+
+which should install all necessary packages into the corresponding environment. Afterwards, you can use the `ScientificComputing` package within the environment.
 
 ## Slides
 
@@ -18,7 +21,7 @@ using ScientificComputing
 start_slides()
 ```
 
-And load the notebook `./slides/notebook.jl` in the browser interface.
+which starts the presentation in your browser.
 
 
 ## Scripts
