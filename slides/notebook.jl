@@ -415,14 +415,16 @@ f(x) = x^2 - 3*(x-2)^4
 
 # ╔═╡ 7584eb8c-9e6a-43cc-859a-f2940adadad0
 # Lets see what happens
-@time f(5, 5)
+f(1, 5)
 
 # ╔═╡ d4ec78eb-10ee-4b0f-812f-0c79f5dfce91
 # And under the hood
 @code_lowered f(0.2, 3.0)
 
 # ╔═╡ e3033c49-9891-47eb-9d78-e1bd629a944a
-@time f(x, x̂)
+with_terminal() do 
+	@time f(x, x̂)
+end
 
 # ╔═╡ 70764379-8132-4ca3-aee6-87871c2132a2
 # Can we get it down? Hide at first
@@ -438,7 +440,7 @@ function fastf(x::AbstractVector{X}, y::AbstractVector{Y}) where {X, Y}
 	# We assume length(x) == length(y) -> Errors are not catched!
 	# Additionally we add the @simd macro to instruct the compiler
 	# to parallelize
-	for i in 1:length(x)
+	@simd for i in 1:length(x)
 		# If we want, we could also use the @fastmath macro here
 		# which does not improve our performance ( in this case )
 		res[i] = f(x[i], y[i])
@@ -448,7 +450,9 @@ function fastf(x::AbstractVector{X}, y::AbstractVector{Y}) where {X, Y}
 end
 
 # ╔═╡ 76a0d6b9-f6e6-4e68-9607-17be0d8b8c19
-@code_lowered fastf(x, x̂)
+with_terminal() do
+	@time fastf(x, x̂)
+end
 
 # ╔═╡ 0c909529-b296-4a61-a369-e0d129b37501
 # Mutating function and even faster because we assume the same type
@@ -467,7 +471,7 @@ function fastf!(res::AbstractVector{T}, x::AbstractVector{T}, y::AbstractVector{
 end
 
 # ╔═╡ e70fd29d-6ee0-4011-9f45-df4d4e72d6d4
-begin
+with_terminal() do
 	# Benchmarking
 	mybench(f::Function, args...) = @time f(args...)
 	
@@ -480,6 +484,15 @@ end
 
 # ╔═╡ 97306279-df1f-4bb2-9d51-8e6345808100
 f(z)
+
+# ╔═╡ 4c45e54f-7d0b-4f3d-acfc-b4cd90e7afb6
+f(0.3)
+
+# ╔═╡ 422e28e6-c51e-4144-b0a6-970cdee830ed
+f(5)
+
+# ╔═╡ 5b6189c3-b2be-4487-aac4-0d182b8bd5bb
+f(0.3+im*3)
 
 # ╔═╡ fb3490f1-0b3a-44b0-9bea-50cb5e530c15
 md""" # Matchig Pursuit [[4]](https://en.wikipedia.org/wiki/Matching_pursuit)
@@ -506,7 +519,7 @@ We will use a more sophisticated version [based on this paper](https://asp-euras
 
 # ╔═╡ 34d14afe-2194-43f0-a829-15276ecca883
 # Define the algorithm
-function gOMP(y0::AbstractVector, Ψ::AbstractMatrix, K::Int = 2, S::Int = K; max_iter::Int = 100, ϵ::Real = eps())
+function gOMP(y0::AbstractVector, Ψ::AbstractMatrix, K::Int = 2, S::Int = 1; max_iter::Int = 100, ϵ::Real = eps())
 	# Get the dimensions
 	m = length(y0)
 	m_psi, n = size(Ψ)
@@ -595,8 +608,8 @@ function gOMP(Y::AbstractMatrix, Ψ::AbstractMatrix, args...; kwargs...)
 	
 	# we know that the coefficients can be derived independent
 	A = zeros(size(Ψ, 2), size(Y, 1)) # Init
-	Threads.@threads for i in 1:size(Y, 1)
-	#for i in 1:size(Y, 1)
+	#Threads.@threads for i in 1:size(Y, 1)
+	for i in 1:size(Y, 1)
 		A[:, i] .= gOMP(Y[i, :], Ψ, args...; kwargs...)
 	end
 	return A
@@ -606,7 +619,7 @@ end
 begin 
 	ynoise = y .+ n*mean(y, dims = 2).*randn(size(y))
 	a = gOMP(ynoise, ψ, k)
-	plot(t, ynoise, label = "Original Signal with $n percent noise", title = "Fit")
+	plot(t, ynoise, label = "Original Signal with $(n*100) percent noise", title = "Fit")
 	plot!(t, ψ*a, label = "Recovered with  $(sum(abs.(a) .> 1e-10)) / $k elements ")
 	annotate!([(0.0, -14.0, Plots.text("Coefficients : $(round.(a, digits = 2))", 10, :black, :left))])
 
@@ -614,10 +627,15 @@ begin
 end
 
 # ╔═╡ 6e8805fe-05e8-49b5-a231-1efb995da173
-Y = vcat([(y+5e-1*randn(size(y)))' for i in 1:100]...)
+Y = vcat([(y+1e-2*randn(size(y)))' for i in 1:100]...)
 
 # ╔═╡ 05cccc05-89a8-48c9-b1ac-a8ff6b5089a9
-@time gOMP(Y, ψ, 4)
+with_terminal() do 
+	@time gOMP(Y, ψ, 4) 
+end
+
+# ╔═╡ 253e609d-2fd1-4ec0-af3f-cefa10abe168
+sum(gOMP(Y, ψ, 4), dims = 2)/100
 
 # ╔═╡ 1d3939e1-bcec-46fd-84e0-b84abfbb3dc9
 md""" # Ecosystem & Package Development
@@ -676,13 +694,17 @@ And : [JuliaCon 2021](https://juliacon.org/2021/) is around the corner!
 # ╠═ebc190c1-aa57-4ab0-8f6f-958eaae4008b
 # ╠═892e2207-b7e0-410c-a22e-93aa185ea858
 # ╠═97306279-df1f-4bb2-9d51-8e6345808100
+# ╠═4c45e54f-7d0b-4f3d-acfc-b4cd90e7afb6
+# ╠═422e28e6-c51e-4144-b0a6-970cdee830ed
+# ╠═5b6189c3-b2be-4487-aac4-0d182b8bd5bb
 # ╟─fb3490f1-0b3a-44b0-9bea-50cb5e530c15
 # ╠═34d14afe-2194-43f0-a829-15276ecca883
-# ╟─2ebc2b89-27f2-4abc-816e-7950bce2267f
+# ╠═2ebc2b89-27f2-4abc-816e-7950bce2267f
 # ╟─fb971894-a833-4955-93b0-da68c4a71db0
 # ╟─f7451fdb-b5ac-4bf7-82f2-fed46ed98e99
 # ╟─dac7e4e0-2532-45ff-8b0f-1d8a92e90ccf
 # ╠═1679b86e-13ef-48c4-9a05-613387c213f9
 # ╠═6e8805fe-05e8-49b5-a231-1efb995da173
 # ╠═05cccc05-89a8-48c9-b1ac-a8ff6b5089a9
+# ╠═253e609d-2fd1-4ec0-af3f-cefa10abe168
 # ╟─1d3939e1-bcec-46fd-84e0-b84abfbb3dc9
