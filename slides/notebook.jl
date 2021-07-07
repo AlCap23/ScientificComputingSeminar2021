@@ -58,9 +58,10 @@ html"<button onclick=present()>Present</button>"
 md""" # Julia
 
 Outline
-+ Julia as a Programming Language
-+ Multiple Dispatch vs. Object Oriented Programming
-+ Matching Pursuit and Speed-Ups
++ Julia - A Fresh Approach to Numerical Computation
++ Julia - A *Fast* Approach to Numerical Computation
++ Programming Paradigms and Multiple Dispatch
++ Hands on Matching Pursuit
 """
 
 # ╔═╡ afdf3c0f-8f09-425a-9ac9-94d5944c6e91
@@ -104,13 +105,14 @@ This is known as the **Two Language Problem** in computer science.
 begin
 	text_c = md""" _C_
 	
-	+ Static Typed
+	+ Staticly Typed
 	+ Compiled
 	+ Highly performant
 	
 	""";
 	text_cpp = md""" _C++_
 	
+	+ Staticly Typed
 	+ Object Oriented
 	+ Compiled
 	+ Highly performant
@@ -148,16 +150,52 @@ md""" Let's compare Julia with $(@bind comparision_language_1 html"<select><opti
 TwoColumn(comp_lang[comparision_language_1], text_julia)
 
 # ╔═╡ b7d2a5f4-c6f9-43ef-9beb-38f833b5d13c
-md""" ### The need for speed
+md""" # The need for speed
 """
 
 # ╔═╡ 2790a41c-cb5b-4eed-bb6e-7687b7c01824
 # Consider the function 
-f(x,y) = exp.(-(x-y).^2)
+f(x,y) = exp(-(x-y)^2)
+
+# ╔═╡ 014a0e4c-abaf-445d-9de8-18cc1fcf7e1d
+begin
+	# For two arrays
+	x = fill(1, 100000)
+	x̂ = randn(100000)
+end
+
+# ╔═╡ e158522d-fe91-49fb-bf98-1fcf909f0223
+md""" The error above is due to the missing vectorization of the function `f`.
+We can add this quite easily.
+"""
+
+# ╔═╡ bd0fe52b-444e-442c-89c5-ba84d8bad709
+begin
+	
+	md""" ## Benchmarks
+	![Julia Microbenchmarks](https://julialang.org/assets/benchmarks/benchmarks.svg)
+	Microbenchmarks of Julia vs. different Languages as currently available [here](https://julialang.org/benchmarks/)
+	
+	**BUT** This is an old plot. Be careful.
+	
+	"""
+	
+	
+end
+
+# ╔═╡ bdb0db4b-ac6d-4311-b506-55e82b7974e0
+Foldable("Just In Time (JIT) Compilation", 
+	md"""
+	Julia is just in time compiled, using [LLVM](https://llvm.org/) under the hood. Similar approaches exist for [Matlab](https://de.mathworks.com/products/matlab/matlab-execution-engine.html) and [Python](https://doc.pypy.org/en/latest/architecture.html#jit-compiler). However, these are optional oppose to Julia, where it is the standard. 
+	"""
+	)
+
+# ╔═╡ b9958f53-c487-4237-b84b-b4e35e86a656
+md""" ### Some Performance Pitfalls """
 
 # ╔═╡ 4ccb9374-f661-47b2-8f25-3818c78d5cf3
 Foldable(
-	"Caveat",
+	"Benchmarking",
 md"""
 Most commonly, new users consider Julia to be slow due to a first function call. This is due to the compilation of each method happening at compile level. 
 
@@ -176,35 +214,10 @@ x = randn(Float64, 10000);
 10105.128612847464 # <- Result
 
 ```
-"""
-	)
-
-# ╔═╡ 014a0e4c-abaf-445d-9de8-18cc1fcf7e1d
-begin
-	# For two arrays
-	x = fill(1, 100000)
-	x̂ = randn(100000)
-end
-
-# ╔═╡ fd8dd3db-aeb6-4105-b4c2-c9eca716ebed
-Foldable("Referecing", 
-	md"""
-	By default, we reference rather than copy. Consider
 	
-	```
-	x = randn(10);
-	x[1] = 1; # Set the first element to 1
-	v = x[1] # Set v <- x[1]
-	x[1] = 2 # Set x[1] to 2
-	v # Will return 2
-	```
-	"""
-	)
-
-# ╔═╡ e158522d-fe91-49fb-bf98-1fcf909f0223
-md""" The error above is due to the missing vectorization of the function `f`.
-We can add this quite easily.
+Use [BenchmarkTools](https://github.com/JuliaCI/BenchmarkTools.jl) and do as I tell you and not as I do.	
 """
+	)
 
 # ╔═╡ 363eebd3-0c8d-49c3-9d8a-9e6aaf6fce8b
 Foldable("Memory Layout", 
@@ -219,24 +232,18 @@ Foldable("Memory Layout",
 	"""
 	)
 
-# ╔═╡ bd0fe52b-444e-442c-89c5-ba84d8bad709
-begin
-	
-	md""" ### Benchmarks
-	![Julia Microbenchmarks](https://julialang.org/assets/benchmarks/benchmarks.svg)
-	Microbenchmarks of Julia vs. different Languages as currently available [here](https://julialang.org/benchmarks/)
-	
-	**BUT** This is an old plot. Be careful.
-	
-	"""
-	
-	
-end
-
-# ╔═╡ bdb0db4b-ac6d-4311-b506-55e82b7974e0
-Foldable("Just In Time (JIT) Compilation", 
+# ╔═╡ fd8dd3db-aeb6-4105-b4c2-c9eca716ebed
+Foldable("Referecing", 
 	md"""
-	Julia is just in time compiled, using [LLVM](https://llvm.org/) under the hood. Similar approaches exist for [Matlab](https://de.mathworks.com/products/matlab/matlab-execution-engine.html) and [Python](https://doc.pypy.org/en/latest/architecture.html#jit-compiler). However, these are optional oppose to Julia, where it is the standard. 
+	By default, we reference rather than copy. Consider
+	
+	```
+	x = randn(10);
+	x[1] = 1; # Set the first element to 1
+	v = x[1] # Set v <- x[1]
+	x[1] = 2 # Set x[1] to 2
+	v # Will return 2
+	```
 	"""
 	)
 
@@ -263,7 +270,7 @@ begin
 end
 
 # ╔═╡ ff06c5fe-500b-496e-8801-d399f1b2f394
-md""" # Multiple Dispatch
+md""" # Classical Dispatch
 """
 
 # ╔═╡ 62d14388-0616-4ab3-af97-82e31d380157
@@ -301,13 +308,13 @@ TwoColumn(
 	```
 	z = 3+i4
 	r = 0.1
-	z + 0.1
+	z + r
 	```
 	"""
 )
 
 # ╔═╡ 148805bf-e3c1-497b-a776-fd997a6d7acd
-md""" **Multiple Dispatch**
+md""" # Multiple Dispatch 
 
 Global namespace
 
@@ -316,6 +323,12 @@ $f \in \mathcal{F}$
 With unique arguments 
 
 $f : \mathcal{X}_1 \times \mathcal{X}_2 \dots \mapsto \mathcal{Y}$
+
+```
+	z = 3+i4
+	r = 0.1
+	z + r
+```
 """
 
 # ╔═╡ 1d53fe22-000f-4ee4-9c65-c4f755dd3ce6
@@ -348,8 +361,7 @@ evaluate(predict(mfoo), test_data)
 	")
 
 # ╔═╡ 66079375-24c7-4e27-ba41-08fd5634fcd7
-md""" 
-**Example** : Dual Numbers
+md""" ## Dual Numbers
 
 $z = a + b \epsilon$  
 
@@ -373,7 +385,7 @@ Base.:+(x::DualNumber{T}, y::DualNumber{T}) where T = DualNumber(x.a + y.a, x.b 
 z = DualNumber(1.0, 0.2)
 
 # ╔═╡ 481e1757-cbd9-4b52-b6d7-b828934e0a74
-z + z
+sum([z for i in 1:100])
 
 # ╔═╡ 1fb93892-2ab8-4e49-9076-1517afb2299d
 # Multiplication
@@ -385,7 +397,7 @@ Base.:*(x::DualNumber, y::DualNumber) = DualNumber(
 z*z # Works
 
 # ╔═╡ 987772c6-35e6-4340-b8ad-65eb6c5521dc
-(z^3 + z^2)
+prod([(z^3 + z^2) for i in 1:10])
 
 # ╔═╡ ebc190c1-aa57-4ab0-8f6f-958eaae4008b
 begin
@@ -399,15 +411,18 @@ begin
 end
 
 # ╔═╡ 892e2207-b7e0-410c-a22e-93aa185ea858
-f(x) = x^2 - 3*x
+f(x) = x^2 - 3*(x-2)^4
 
 # ╔═╡ 7584eb8c-9e6a-43cc-859a-f2940adadad0
 # Lets see what happens
-f(1f0, 2)
+@time f(5, 5)
 
 # ╔═╡ d4ec78eb-10ee-4b0f-812f-0c79f5dfce91
 # And under the hood
 @code_lowered f(0.2, 3.0)
+
+# ╔═╡ e3033c49-9891-47eb-9d78-e1bd629a944a
+@time f(x, x̂)
 
 # ╔═╡ 70764379-8132-4ca3-aee6-87871c2132a2
 # Can we get it down? Hide at first
@@ -423,7 +438,7 @@ function fastf(x::AbstractVector{X}, y::AbstractVector{Y}) where {X, Y}
 	# We assume length(x) == length(y) -> Errors are not catched!
 	# Additionally we add the @simd macro to instruct the compiler
 	# to parallelize
-	@inbounds for i in 1:length(x)
+	for i in 1:length(x)
 		# If we want, we could also use the @fastmath macro here
 		# which does not improve our performance ( in this case )
 		res[i] = f(x[i], y[i])
@@ -433,7 +448,7 @@ function fastf(x::AbstractVector{X}, y::AbstractVector{Y}) where {X, Y}
 end
 
 # ╔═╡ 76a0d6b9-f6e6-4e68-9607-17be0d8b8c19
-@time fastf(x, x̂)
+@code_lowered fastf(x, x̂)
 
 # ╔═╡ 0c909529-b296-4a61-a369-e0d129b37501
 # Mutating function and even faster because we assume the same type
@@ -455,9 +470,10 @@ end
 begin
 	# Benchmarking
 	mybench(f::Function, args...) = @time f(args...)
-	#@time f(x, x̂)
+	
 	mybench(f, x, x̂)
 	mybench(fastf, x, x̂) 
+	
 	res = similar(x̂)
 	mybench(fastf!, res, convert.(eltype(x̂), x), x̂)
 end
@@ -466,7 +482,7 @@ end
 f(z)
 
 # ╔═╡ fb3490f1-0b3a-44b0-9bea-50cb5e530c15
-md""" ### Matchig Pursuit [[4]](https://en.wikipedia.org/wiki/Matching_pursuit)
+md""" # Matchig Pursuit [[4]](https://en.wikipedia.org/wiki/Matching_pursuit)
 
 $\min_\Xi \quad \lVert \Xi \rVert_0, \quad \text{s.t.} \quad Y = \Psi(X) \Xi$
 
@@ -532,7 +548,7 @@ function gOMP(y0::AbstractVector, Ψ::AbstractMatrix, K::Int = 2, S::Int = K; ma
 		# Update r
 		r .= y - ψ*u
 		# Convergence
-		if norm(r,2) < ϵ || sum(Λ) >= S
+		if norm(r,2) < ϵ || sum(Λ) >= K
 			# Just for debug
 			#@debug "Early break after $i iterations with $(norm(r,2))"
 			break
@@ -579,8 +595,8 @@ function gOMP(Y::AbstractMatrix, Ψ::AbstractMatrix, args...; kwargs...)
 	
 	# we know that the coefficients can be derived independent
 	A = zeros(size(Ψ, 2), size(Y, 1)) # Init
-	#Threads.@threads for i in 1:size(Y, 1)
-	for i in 1:size(Y, 1)
+	Threads.@threads for i in 1:size(Y, 1)
+	#for i in 1:size(Y, 1)
 		A[:, i] .= gOMP(Y[i, :], Ψ, args...; kwargs...)
 	end
 	return A
@@ -604,11 +620,13 @@ Y = vcat([(y+5e-1*randn(size(y)))' for i in 1:100]...)
 @time gOMP(Y, ψ, 4)
 
 # ╔═╡ 1d3939e1-bcec-46fd-84e0-b84abfbb3dc9
-md""" ### Ecosystem & Package Development
+md""" # Ecosystem & Package Development
 
 [JuliaHub](https://juliahub.com/ui/Packages) provides us with a nice, searchable database for all registered packages.
 
 As an example for Package Development, we can have a look at [DataDrivenDiffEq.jl](https://github.com/SciML/DataDrivenDiffEq.jl).
+
+And : [JuliaCon 2021](https://juliacon.org/2021/) is around the corner!
 """
 
 # ╔═╡ Cell order:
@@ -624,18 +642,20 @@ As an example for Package Development, we can have a look at [DataDrivenDiffEq.j
 # ╟─b7d2a5f4-c6f9-43ef-9beb-38f833b5d13c
 # ╠═2790a41c-cb5b-4eed-bb6e-7687b7c01824
 # ╠═7584eb8c-9e6a-43cc-859a-f2940adadad0
-# ╟─4ccb9374-f661-47b2-8f25-3818c78d5cf3
 # ╠═d4ec78eb-10ee-4b0f-812f-0c79f5dfce91
 # ╠═014a0e4c-abaf-445d-9de8-18cc1fcf7e1d
-# ╟─fd8dd3db-aeb6-4105-b4c2-c9eca716ebed
+# ╠═e3033c49-9891-47eb-9d78-e1bd629a944a
 # ╠═76a0d6b9-f6e6-4e68-9607-17be0d8b8c19
 # ╟─e158522d-fe91-49fb-bf98-1fcf909f0223
 # ╠═70764379-8132-4ca3-aee6-87871c2132a2
 # ╠═0c909529-b296-4a61-a369-e0d129b37501
 # ╠═e70fd29d-6ee0-4011-9f45-df4d4e72d6d4
-# ╟─363eebd3-0c8d-49c3-9d8a-9e6aaf6fce8b
 # ╟─bd0fe52b-444e-442c-89c5-ba84d8bad709
 # ╟─bdb0db4b-ac6d-4311-b506-55e82b7974e0
+# ╟─b9958f53-c487-4237-b84b-b4e35e86a656
+# ╟─4ccb9374-f661-47b2-8f25-3818c78d5cf3
+# ╟─363eebd3-0c8d-49c3-9d8a-9e6aaf6fce8b
+# ╟─fd8dd3db-aeb6-4105-b4c2-c9eca716ebed
 # ╟─f51666f4-2896-4ba6-8f92-63795fb43d3a
 # ╠═c78dee8d-9ff2-441f-9f5b-fc60f413869a
 # ╠═3d110ae2-c8d0-4355-bccc-7d7a89224453
@@ -657,7 +677,7 @@ As an example for Package Development, we can have a look at [DataDrivenDiffEq.j
 # ╠═892e2207-b7e0-410c-a22e-93aa185ea858
 # ╠═97306279-df1f-4bb2-9d51-8e6345808100
 # ╟─fb3490f1-0b3a-44b0-9bea-50cb5e530c15
-# ╟─34d14afe-2194-43f0-a829-15276ecca883
+# ╠═34d14afe-2194-43f0-a829-15276ecca883
 # ╟─2ebc2b89-27f2-4abc-816e-7950bce2267f
 # ╟─fb971894-a833-4955-93b0-da68c4a71db0
 # ╟─f7451fdb-b5ac-4bf7-82f2-fed46ed98e99
