@@ -1,1 +1,16 @@
 Manifest.toml
+report/*.aux
+report/*.log
+report/*.bbl
+report/*.blg
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz
+report/*.toc
+
+report/contents/*.aux
+
+
+
+
+
