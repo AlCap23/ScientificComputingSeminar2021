@@ -1,0 +1,61 @@
+%\section{Design}
+\section{ Just-In-Time Compilation and Optimizing Code}
+\label{JM:sec:design}
+
+Consider the following code
+
+\lstinputlisting[language=Julia,firstline=1, lastline=15]{../scripts/optimizing_code.jl}
+
+Which returns basic performance metrics about the function call like overall execution time, memory allocations and compilation time.
+
+\begin{lstlisting}[language=Julia]
+    0.016432 seconds (6.08 k allocations: 342.705 KiB, 99.78% compilation time)
+\end{lstlisting}
+
+Another execution of the same command holds a different result.
+
+\begin{lstlisting}[language=Julia]
+    0.000008 seconds (1 allocation: 160 bytes)
+\end{lstlisting}
+
+The reason is \textit{Julia}'s underlying just-in-time (JIT) compilation. On the first call of the method $g$, 
+the code is lowered to machine instructions and stored in memory for the specific types of arguments. This means that the first 
+call of a method has an additional overhead due to the effort of the LLVM compiler\footnote{Which is also the reason for the infamous Time to First Plot Benchmark in \textit{Julia}}.
+The second call of a method leverages the already compiled function and can be executed and benchmarked faster. A slight change of arguments shows that this process is indeed type specific.
+
+\lstinputlisting[language=Julia,firstline=19, lastline=22]{../scripts/optimizing_code.jl}
+
+Again, the compilation time is present and takes up most of the execution time
+
+\begin{lstlisting}[language=Julia]
+    0.100689 seconds (269.78 k allocations: 15.753 MiB, 10.07% gc time, 99.92% compilation time)
+\end{lstlisting}
+
+To investiage code optimization, we will consider the example given in \cite[p. 178 ff.]{JMSengupta2019}
+
+\lstinputlisting[language=Julia,firstline=25, lastline=47]{../scripts/optimizing_code.jl}
+
+Both methods defined above are mutating, indicated by the exclamation mark at the end of the function. They change the value of their first argument.
+Instead of using @time the performance metrics are derived via @btime, which evaluates the method over multiple trials depending on the machine specifications.
+
+\begin{lstlisting}[language=Julia]
+    77.906 μs (0 allocations: 0 bytes)
+    18.630 μs (0 allocations: 0 bytes)
+\end{lstlisting}
+
+We see that the use of the second function, which leverages single-instruction-multiple-data (SIMD) and neglecting bounds checking holds a relative speedup of $4.18$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
