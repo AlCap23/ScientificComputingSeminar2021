@@ -1,0 +1,104 @@
+\section{Basics and Multiple Dispatch}
+\label{JM:sec:examples}
+
+We will start by a defining a simple gaussian radial basis function $f : \mathcal{R} \times \mathcal{R} \mapsto \mathcal{R}$ 
+
+\lstinputlisting[language=Julia,firstline=1, lastline=8]{../scripts/HelloWorld.jl}
+
+As we can see, we defined no input types for the function and called it with a Float64 and Int64 as arguments, resulting in a Float64 as the best intersection of both number types.
+Changing the input type of the first argument to a Float32 returns a Float32, again using the intersection of the input data types. To see how the evaluation works, we will use
+
+\lstinputlisting[language=Julia,firstline=10, lastline=10]{../scripts/HelloWorld.jl}
+
+Which will evaluate the function and returns a lowered and type-inferred abstract syntax tree for the method
+
+\begin{lstlisting}[language=Julia]
+    Variables
+  #self#::Core.Const(f)
+  x::Float64
+  y::Int64
+
+Body::Float64
+1 ─ %1 = (x - y)::Float64
+│   %2 = Core.apply_type(Base.Val, 2)::Core.Const(Val{2})
+│   %3 = (%2)()::Core.Const(Val{2}())
+│   %4 = Base.literal_pow(Main.:^, %1, %3)::Float64
+│   %5 = -%4::Float64
+│   %6 = Main.exp(%5)::Float64
+└──      return %6
+\end{lstlisting}
+
+As expected, the compiler infers in \%1 the correct type and propagates it through the program.
+Entering different arguments also works out of the box. Using a pair of ComplexFloat64 and Float32 
+returns a complex valued result, as can be expected.
+
+\lstinputlisting[language=Julia,firstline=12, lastline=12]{../scripts/HelloWorld.jl}
+
+The reason why this approach simply works is called multiple dispatch (MD) and a core design element of \textit{Julia}. Most prominent languages operate on
+obect-oriented programming (OOP) or use functional programming\footnote{FP refers to purely functional programming in the scope of this work. In general modern languages using FP as a paradigm, like \textit{Closure}, tend to use MD.} (FP).
+In FP, each function is defined uniquely by its name and stored in the global namespace. OOP stores methods related to objects in the namespace
+of the corresponding object definition, allowing for more expressivness and clarity in defining the functions. Following \cite{JMKarpinski2019}, the expressiveness of 
+a language can be summarized by its main paradigm as shown in Table \ref{JM:tab:ExpressivePow}.
+
+\begin{table}
+    \begin{tabular}{|l|l|l|l|} \hline
+        & Functional & Obect-Oriented & Multiple Dispatch \\ \hline
+        Dispatch arguments & $\left{\emptyset\right}$ & $\left{x_1\right}$ & $\left{x_1 , x_2, \dots, x_N \right}$ \\
+        Expressive Order &  $\mathcal{O}(1)$ &  $\mathcal{O}(\left|x_1\right|)$ &  $\mathcal{O}(\prod_{i=1}^N \left|x_i\right|)$ & 
+        Expressive Power & const. & linear & exponential \\ \hline
+    \end{tabular}
+    \caption{Expressiveness of different programming paradigms}
+    \label{JM:tab:ExpressivePow}
+\end{table}
+
+
+Every method can be specialized for a specific set of input arguments. If a general function, like $f$, is called the compiler automatically uses the right function defintion. Similar to the mathematical notation, the exponential function $\exp$ used in $f$ has a different image based on the range of its argument. 
+
+\begin{align*}
+    \exp : \mathrf{R} \mapsto \mathcal{R} \\
+    \exp : \mathcal{C} \mapsto \mathcal{C}
+\end{align*}
+
+A similar approach is taken in \textit{Julia}. Evaluating the following code block 
+
+\lstinputlisting[language=Julia,firstline=14, lastline=16]{../scripts/HelloWorld.jl}
+
+returns the corresponding method and where it is defined in the source code to each of the calls.
+
+\begin{lstlisting}[language=Julia]
+    exp(x::T) where T<:Float32 in Base.Math at special/exp.jl:229
+    exp(z::Complex) in Base at complex.jl:638
+\end{lstlisting}
+
+A key difference to OOP based programming is that no method definition has to explicitly know of the other, as long as it is unique in its dispatch arguments\footnote{An unwanted dispatch on an already defined method can result unstable behaviour and called \textit{type-piracy}}.
+This allows developers to easily extend existing packages and functionalities, allowing excessive reuse of the codebase\footnote{A good example is given by \url{https://github.com/JuliaPlots/RecipesBase.jl}, which is used to define individual recipes used for plotting without explicitly depending on \textit{Plots.jl}}. 
+As a small example consider defining a new Number type and its corresponding $\exp$:
+
+\lstinputlisting[language=Julia,firstline=19, lastline=27]{../scripts/HelloWorld.jl}
+
+To make the function $f$ useable for vector operations, multiple dispatch can be leveraged as well. 
+
+\lstinputlisting[language=Julia,firstline=29, lastline=38]{../scripts/HelloWorld.jl}
+
+Since both $\exp$ and \^~ are not defined for vectors, we use broadcasting to call the function on each element of the data structure individually. This is accomplished via the 
+. operator. Checking the available definitions of the function via 
+
+\lstinputlisting[language=Julia,firstline=40, lastline=40]{../scripts/HelloWorld.jl}
+
+we can see that two definitions are present
+
+\begin{lstlisting}[language=Julia]
+    # 2 methods for generic function "f":
+    [1] f(x::AbstractVector{T} where T, y::AbstractVector{T} where T) in Main at ./HelloWorld.jl:32
+    [2] f(x, y) in Main at ./HelloWorld.jl:3
+\end{lstlisting}
+
+[1] is the definition we just added and [2] our original implementation, extending the function to be reused and avoiding different naming schemes.
+
+
+
+
+
+
+
+
