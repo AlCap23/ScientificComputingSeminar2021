@@ -6,109 +6,56 @@
 %
 %\documentclass[a4paper, 12pt]{scrreprt} % KOMA-Script-Report
 %
-\documentclass[a4paper, 12pt]{scrartcl} % KOMA-Script-Article 
+\documentclass[a4paper, 12pt]{article} % KOMA-Script-Article 
 %                                      (dann keine \chapter möglich!!!)
 %                                      (erfodert Anpassung in FMA-commands.tex) 
 %----LaTeX-Pakete-----------------
-\usepackage[ngerman,american]{babel}   %Ueberschriften in Englisch
+\usepackage[ngerman, american]{babel}   %Ueberschriften in Englisch
 %\usepackage[american,ngerman]{babel}  %Ueberschriften in Deutsch
-\usepackage[utf8x]{inputenc} % Quelltext mit Umlauteingabe
+\usepackage[utf8]{inputenc} % Quelltext mit Umlauteingabe
 
 \usepackage{geometry}
 \geometry{twoside, outer=25mm, inner=30mm, top=30mm, bottom=30mm} % zweiseitig
 % \geometry{outer=25mm, inner=30mm, top=30mm, bottom=30mm}        % einseitig
-\usepackage{latexsym}          % spezielle Mathematik-Symbole
+%\usepackage{latexsym}          % spezielle Mathematik-Symbole
 \usepackage{graphicx}          % zum Einbinden von Bildern
-\usepackage{amsmath, amssymb}  % LaTeX-Erweiterungen der AMS
+%\usepackage{amsmath, amssymb}  % LaTeX-Erweiterungen der AMS
+\usepackage{amsmath,amssymb,amsfonts,amsthm, mathtools}
+\usepackage{hyperref} % References
 
-% ----Code Syntax und Highlighting 
-%\usepackage[T1]{fontenc}
-%\usepackage{beramono}
-%%\usepackage{listings}
-%\usepackage[usenames,dvipsnames]{xcolor}
+%\usepackage{natbib}
+\usepackage{biblatex} %Imports biblatex package
+\addbibresource{bibliography.bib} %Import the bibliography file
 
-%%
-%% Julia definition (c) 2014 Jubobs
-%%
-%\lstdefinelanguage{Julia}%
-%  {morekeywords={abstract,break,case,catch,const,continue,do,else,elseif,%
-%      end,export,false,for,function,immutable,import,importall,if,in,%
-%      macro,module,otherwise,quote,return,switch,true,try,type,typealias,%
-%      using,while},%
-%   sensitive=true,%
-%   alsoother={$},%
-%   morecomment=[l]\#,%
-%   morecomment=[n]{\#=}{=\#},%
-%   morestring=[s]{"}{"},%
-%   morestring=[m]{'}{'},%
-%}[keywords,comments,strings]%
-%
-%\protected\def\dg{\ensuremath{^\circ}}
-%\DeclareUnicodeCharacter{05A8}{\dg}
-%
-%
-%\lstset{%
-%    language         = Julia,
-%    basicstyle       = \ttfamily,
-%    keywordstyle     = \bfseries\color{blue},
-%    stringstyle      = \color{magenta},
-%    commentstyle     = \color{ForestGreen},
-%    showstringspaces = false,
-%    inputencoding=utf8x
-%}
-%
-%\lstdefinestyle{CStyle}{
-%    backgroundcolor=\color{backgroundColour},   
-%    commentstyle=\color{mGreen},
-%    keywordstyle=\color{magenta},
-%    numberstyle=\tiny\color{mGray},
-%    stringstyle=\color{mPurple},
-%    basicstyle=\footnotesize,
-%    breakatwhitespace=false,         
-%    breaklines=true,                 
-%    captionpos=b,                    
-%    keepspaces=true,                 
-%    numbers=left,                    
-%    numbersep=5pt,                  
-%    showspaces=false,                
-%    showstringspaces=false,
-%    showtabs=false,                  
-%    tabsize=2,
-%    language=C
-%}
-%
 
 % ----Julia Code visibility-----
 \usepackage[theme = default-plain]{jlcode}
-
-\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white,margin=0pt}
-
-
+%\usepackage{listings}
 % ----Einbinden von pdf-Dateien oder einzelnen Seiten daraus
-\usepackage{pdfpages}
-\usepackage{xspace}
-\usepackage{setspace}        % zum Variieren des Zeilenabstandes
+%\usepackage{pdfpages}
+%\usepackage{xspace}
+%\usepackage{setspace}        % zum Variieren des Zeilenabstandes
 % Anwendung im Text:  \includepdf[pages={7, 9-12}]{Name der pdf-Datei}
 %------
 % Kopf- und Fußzeilen mit scrpage2 ---------------*Beginn*------------
-\usepackage[automark,headsepline]{scrpage2}
-\automark[section]{chapter}
-\pagestyle{scrheadings}			
-\clearscrheadfoot
-\ihead[]{\headmark}
-\cfoot[\hfill -- \thepage{} -- \hfill]{\hfill -- \thepage{} -- \hfill}
-\setkomafont{pagefoot}{\normalfont\sffamily}
-% Kopf- und Fußzeilen mit scrpage2 ---------------*Ende* --------------
-\setlength{\parindent}{0cm}
-\setcounter{tocdepth}{4}       % 4 Gliederungsebenen in das Inhaltsverzeichnis
-\setcounter{secnumdepth}{3}    % 4 (!) Gliederungsebenen werden nummeriert(0-3) 
-\input{FMA-commands}           % hilfreiche LaTeX-Befehlsabkürzungen
+%\usepackage[automark,headsepline]{scrlayer-scrpage}
+%\automark[section]{chapter}
+%\pagestyle{scrheadings}			
+%\clearscrheadfoot
+%\ihead[]{\headmark}
+%\cfoot[\hfill -- \thepage{} -- \hfill]{\hfill -- \thepage{} -- \hfill}
+%\setkomafont{pagefoot}{\normalfont\sffamily}
+%% Kopf- und Fußzeilen mit scrpage2 ---------------*Ende* --------------
+%\setlength{\parindent}{0cm}
+%\setcounter{tocdepth}{4}       % 4 Gliederungsebenen in das Inhaltsverzeichnis
+%\setcounter{secnumdepth}{3}    % 4 (!) Gliederungsebenen werden nummeriert(0-3) 
+%\input{FMA-commands}           % hilfreiche LaTeX-Befehlsabkürzungen
 % ------------------------------------------------------------------------------
 %
 %###############################################################################
 \begin{document}
 \pagenumbering{Roman}
-\input{FMA-titlepage4}
+%\input{FMA-titlepage4}
 \tableofcontents
 \clearpage
 % \addcontentsline{toc}{section}{Abbildungsverzeichnis}
@@ -118,10 +65,18 @@
 \setcounter{page}{1}      %Beginn der Textseitenzaehlung
 % ------------------------------------------------------------------------------
 % hier beginnen die einzelnen Kapitel der Arbeit
-\input{contents}
+\input{contents/00_introduction.tex}
+%\input{contents/02_general.tex}
+\input{contents/03_multiple_dispatch.tex}
+%\input{contents/04_matching.tex}
 % 
 \newpage
-
+%\bibliography{bibliography}
+%\nocite{*}
+%\bibliographystyle{ieeetr}
+%\bibliography{bibliography}
+\printbibliography
+\newpage
 \section*{Erklärung}		
 \thispagestyle{empty}				
 
