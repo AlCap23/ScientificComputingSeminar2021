@@ -1,4 +1,8 @@
-function gOMP(y0::AbstractVector, Ψ::AbstractMatrix, 
+using LinearAlgebra: similar
+using LinearAlgebra, SparseArrays, Random, Statistics
+using Plots, Plots.PlotMeasures
+
+function gomp(y0::AbstractVector, Ψ::AbstractMatrix, 
     K::Int = 2, S::Int = 1; 
     max_iter::Int = 100, ϵ::Real = eps())
 
@@ -51,3 +55,38 @@ function gOMP(y0::AbstractVector, Ψ::AbstractMatrix,
     
 	return u
 end
+
+## Test data
+Random.seed!(1111) # Lucky
+x̂ = sprandn(Float64, 100, 0.1)
+k_opt = Int(norm(x̂, 0))
+A = randn(Float64, 300, 100)
+y = A*x̂
+
+# Evaluate
+x = gomp(y, A, k_opt)
+
+# Check for different noise levels
+σ = var(A, dims = 2)
+Ã = similar(A)
+# Estimate and return sparsity
+sp_n = map(0:0.5:10.0) do i
+	Ã = A
+	for j in 1:size(A, 2)
+		Ã[:,j] .+= σ[j]*i*randn(length(y))
+	end
+	ỹ = Ã*x̂
+	norm(gomp(ỹ, Ã, k_opt), 0)
+end
+
+
+pl_1 = scatter(x̂, label = "Ground Truth", markeralpha = 0.5, xlabel = "Index", ylabel = "x", legend = :bottomright)
+scatter!(x, label = "Estimated", markershape = :cross, markersize = 12, markerstrokewidth = 5)
+savefig(joinpath(pwd(), "figures", "gomp.pdf"))
+
+pl_2 = scatter((0:0.01:1.0) .* 100.0, sp_n, xlabel = "Noise Level [% of Variance]", ylabel = "Nonzero Entries", label = "Recovered", legend = :bottomleft)
+plot!([0; 100], [k_opt; k_opt], linestyle = :dash, label = "Ground Truth")
+savefig(joinpath(pwd(), "figures", "gomp_noise.pdf"))
+
+plot(pl_1, pl_2, layout = (1,2), size = (900, 300), margins = 5mm)
+savefig(joinpath(pwd(), "figures", "merged.pdf"))
