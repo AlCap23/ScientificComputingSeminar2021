@@ -18,12 +18,9 @@ as the \textit{two language problem}. This approach, while being general, has so
 \textit{Julia} \cite{JMBezansonEtAl2015} is a relatively new language, being initially released in 2012 for the broader public. It aims to provide performant code, leveraging the best features of 
 prominent languages without complicated semantic structures, contraticting the common misconception that computational performance comes at the price of ease of use \cite{JMEdelman2019}. \\
 
-In the following, \textit{Julia} will be introduced as a language for scientifc computation. The text is structured as follows: \\
-\ref{JM:sec:design} introduces multiple dispatch as a design paradigm for programming and compares it to functional and object-oriented programming.\\
-\ref{JM:sec:examples} gives examples for using \textit{Julia} in the context of numerical computations and how to optimize code manually.\\
-\ref{JM:sec:matching_pursuit} implements a variant of matching pursuit as a hands on example.\\
-\ref{JM:sec:ecosystem} gives a brief glimpse in the current ecosystem of \textit{Julia}, highlighting noteworthy packages.\\
-SECTION ends with a conclusion.
+In the following, \textit{Julia} will be introduced as a language for scientifc computation. Section \ref{JM:sec:basics} starts by introducing how to define and analyse functions before introducing the concept of multiple dispatch to the reader.
+Afterwards, section \ref{JM:sec:JITOpt} explains benchmarking, optimizing code and just-in-time compilation. In section \ref{JM:sec:GOMP} a simple greedy algorithm for sparse regression is implemented and explained. Section \ref{JM:sec:ECO} highlights some of the most useful and prominent packages of the language.
+A conclusion is drawn in section \ref{JM:sec:CONC}.
 
 \newpage
 

@@ -1,7 +1,7 @@
 \section{Basics and Multiple Dispatch}
-\label{JM:sec:examples}
+\label{JM:sec:basics}
 
-We will start by a defining a simple gaussian radial basis function $f : \mathcal{R} \times \mathcal{R} \mapsto \mathcal{R}$ 
+We will start by a defining a simple gaussian radial basis function $f : \mathbb{R} \times \mathbb{R} \mapsto \mathbb{R}$ 
 
 \lstinputlisting[language=Julia,firstline=1, lastline=8]{../scripts/HelloWorld.jl}
 
@@ -43,8 +43,8 @@ a language can be summarized by its main paradigm as shown in Table \ref{JM:tab:
 \begin{table}
     \begin{tabular}{|l|l|l|l|} \hline
         & Functional & Obect-Oriented & Multiple Dispatch \\ \hline
-        Dispatch arguments & $\left{\emptyset\right}$ & $\left{x_1\right}$ & $\left{x_1 , x_2, \dots, x_N \right}$ \\
-        Expressive Order &  $\mathcal{O}(1)$ &  $\mathcal{O}(\left|x_1\right|)$ &  $\mathcal{O}(\prod_{i=1}^N \left|x_i\right|)$ & 
+        Dispatch arguments & $\emptyset$ & $\lbrace x_1 \rbrace$ & $\lbrace x_1 , x_2, \dots, x_N \rbrace$ \\
+        Expressive Order &  $\mathcal{O}\left(1\right)$ & $\mathcal{O}\left(\left|x_1\right|\right)$ &  $\mathcal{O}\left(\prod_{i=1}^N \left|x_i\right|\right)$ \\
         Expressive Power & const. & linear & exponential \\ \hline
     \end{tabular}
     \caption{Expressiveness of different programming paradigms}
@@ -55,8 +55,8 @@ a language can be summarized by its main paradigm as shown in Table \ref{JM:tab:
 Every method can be specialized for a specific set of input arguments. If a general function, like $f$, is called the compiler automatically uses the right function defintion. Similar to the mathematical notation, the exponential function $\exp$ used in $f$ has a different image based on the range of its argument. 
 
 \begin{align*}
-    \exp : \mathrf{R} \mapsto \mathcal{R} \\
-    \exp : \mathcal{C} \mapsto \mathcal{C}
+    \exp : \mathbb{R} \mapsto \mathbb{R} \\
+    \exp : \mathbb{C} \mapsto \mathbb{C}
 \end{align*}
 
 A similar approach is taken in \textit{Julia}. Evaluating the following code block 
