@@ -1,37 +1,29 @@
 \section{Introduction}
 \label{JM:sec:introduction}
 
-In the world of todays sciences, the use of computers has transformed the field and requirements for researchers tremendously. 
-The ability to collect and process data at a high rates using (semi-) automatic approaches pushes the classical fields of 
-physics, biology, medicine, engineering and social sciences towards hybrid models and big data evaluation. A quite recent example is the detection of gravitational waves, 
-where a relatively hughe software pipeline \cite{JMMacleodEtAl2021} has been used to process the data and help the researchers to classify the events. The full software suite is since publicly available on Github\footnote{\url{https://gwpy.github.io/}}.\\
+In the world of today's sciences, the use of computers has transformed the field and requirements for researchers tremendously. 
+The ability to collect and process data at high rates using (semi-) automatic approaches pushes the classical research fields like
+physics, biology, medicine, engineering, and social sciences towards hybrid models and big data evaluation. A recent example is the detection of gravitational waves, 
+where multiple software components have been used to process the data and help the researchers to classify the events \cite{JMMacleodEtAl2021} .\\
 
 
-The requirements on code used for research have grown beyond expert knowledge, but rather to a general tool similar to text editors for many scientific disciplines. This is reflected in the rise of 
-general high level languages like \textit{Python}, \textit{Ruby}, \textit{R} or \textit{Lua} \cite{JMVanRossumDrake2009,JMThomasEtAl2005, JMRCT2016, JMIerusalimschy2006} which are semantically easier to program oppose to lower level languages such as 
-\textit{C}, \textit{C++}, \textit{Fortran}, \textit{Go} and \textit{Rust} \cite{JMKernighanRitchie2006, JMStroustrup2013, JMBackusHeising1964, JMMeyerson2014, JMMatsakisKlockII2014}. The resulting threshold for using higher level languages is hence lower for scientists from fields, where programming and numerical
-computation play at most a minor role, such as psychology, socialogy but also biology. Additionally, the broader user base results in a more versatile ecosystem, giving rise to various packages and modules designed
-for specific tasks. Despise these advantages, the price to be paid is commonly linked to the performance in terms of execution time and memory comsumption of the resulting code. A common pattern in 
-research software is hence to write an application programming interface (API) in high level languages and move the computationally expensive parts to a lower level implementation after finishing prototyping. This is referred to 
-as the \textit{two language problem}. This approach, while being general, has some major drawbacks related to datatype availability, effort of maintanance and dependency management to name just a few.\\
+The requirements on software development used for research purposes have decreased below expert knowledge. Research software and coding are much more of a general tool, similar to text editors, for many scientific disciplines. 
+As a result scientists from fields where programming and numerical computation play at most a minor role, e.g. psychology, sociology but also biology, start to develop code on their own.
+This is reflected in the rise of high-level languages like \textit{Python}, \textit{Ruby}, \textit{R}, or \textit{Lua} \cite{JMVanRossumDrake2009,JMThomasEtAl2005, JMRCT2016, JMIerusalimschy2006} which are semantically easier to program as opposed to lower-level languages such as 
+\textit{C}, \textit{C++}, \textit{Fortran}, \textit{Go}, and \textit{Rust} \cite{JMKernighanRitchie2006, JMStroustrup2013, JMBackusHeising1964, JMMeyerson2014, JMMatsakisKlockII2014}. 
+The broader, more diverse user base of high level languages results in a more versatile ecosystem, giving rise to various packages and modules designed
+for specific tasks with a clean interface. Despise these advantages, the price to be paid is commonly linked to the performance in terms of execution time and memory consumption of the resulting code. 
+A common pattern used is hence to write an application programming interface (API) in high-level languages and move the computationally expensive parts to a low-level implementation after finishing prototyping. 
+This is referred to as the \textit{two language problem}.
+This approach, while being general, has some major drawbacks related to datatype availability, effort of maintanance, and dependency management - to name just a few.\\
 
-\textit{Julia} \cite{JMBezansonEtAl2015} is a relatively new language, being initially released in 2012 for the broader public. It aims to provide performant code, leveraging the best features of 
-prominent languages without complicated semantic structures, contraticting the common misconception that computational performance comes at the price of ease of use \cite{JMEdelman2019}. \\
+To resolve this - and other - problems of scientific computation the \textit{Julia} programming language has been created \cite{JMBezansonEtAl2015}. It aims to provide performant code, leveraging the best features of 
+prominent languages without complicated semantic structures, contradicting the common misconception that computational performance comes at the price of ease of use \cite{JMEdelman2019}. 
+Even though being a relatively new language, initially released in 2012 for the broader public, \textit{Julia} gained much momentum over the last five decade, being used in various scientific disciplines CITE. \\
 
 In the following, \textit{Julia} will be introduced as a language for scientifc computation. Section \ref{JM:sec:basics} starts by introducing how to define and analyse functions before introducing the concept of multiple dispatch to the reader.
-Afterwards, section \ref{JM:sec:JITOpt} explains benchmarking, optimizing code and just-in-time compilation. In section \ref{JM:sec:GOMP} a simple greedy algorithm for sparse regression is implemented and explained. Section \ref{JM:sec:ECO} highlights some of the most useful and prominent packages of the language.
+Afterward, section \ref{JM:sec:JITOpt} explains benchmarking, optimizing code, and just-in-time compilation. Section \ref{JM:sec:GOMP} a simple greedy algorithm for sparse regression is implemented, showcasing the ease of use to transpile mathematical notation to fast code.
+Section \ref{JM:sec:ECO} highlights some of the most useful and prominent packages of the language.
 A conclusion is drawn in section \ref{JM:sec:CONC}.
 
 \newpage
-
-
-%In contrast to using first principles models ardouosly developed by scientists based on sparse or even singular experiments or data with limited
-%resolution, numerical approaches in the context of \textbf{machine learning}(ML) are used. These changes shift both the requirements for scientists to be 
-%able to use and , to a certain degree, also understand programming language as well as making programming accessible to a larger audience. 
-%This lead to various levels of abstraction of programming, starting with \textit{Assembler} as a low-level language which is high performant but requires a high 
-%expertise spanning over \textit{C/C++} which is easier to use but still requires the user to be skilled and high-level languages like \textit{Matlab} and \textit{Python}, 
-%prioritizing ease-of-use. However, most of the time these abstractions come at the price of speed and result in a common practice of implementing algorithms in high-level languages
-%first for development and finalize them in a lower, but more efficient language. This is known as the \textit{Two Language Problem}.
-%
-%\textbf{Julia} is relative new programming language, which is developed since 2009 and firstly released in 2012. It aims to be as useable and accessible as high-level languages while keeping 
-%the speed of computation high. The goal of this document is to provide a short overview of \textit{Julia} in the context of numerical computation. 

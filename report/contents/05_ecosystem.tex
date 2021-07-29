@@ -1,2 +1,28 @@
 \section{Ecosystem And Package Development}
 \label{JM:sec:ECO}
+
+As mentioned in section \ref{JM:sec:introduction} most high-level languages have a vast ecosystem of available packages, spanning various fields of application and 
+a diverse userbase. Despite it being a relatively new language, \textit{Julia} has 6068 officially registered open-source packages\footnote{\href{https://juliahub.com/ui/Packages}{JuliaHub}}\footnote{July 29th, 2021}.\\
+
+Due to the focus on scientific computation, we will start looking at packages related to linear algebra. LinearAlgebra is already included with the basic \textit{Julia} installation, already providing BLAS and LAPACK access. \href{https://github.com/JuliaLinearAlgebra/MKL.jl.git}{MKL.jl}
+provides an alternative backend for Intels MLK. \href{https://github.com/JuliaLinearAlgebra/Arpack.jl.git}{Arpack.jl} gives access to the arpack-ng library written in \textit{Fortran}. 
+\href{https://github.com/JuliaLinearAlgebra/IterativeSolvers.jl.git}{IterativeSolvers.jl} provides common algorithms for solving linear systems like MINRES, GMRES or Conjugate Gradients. \href{https://github.com/JuliaLinearAlgebra/GenericSVD.jl.git}{GenericSVD.jl} extends the singular value decomposition to
+special number types like BigFloats.\\
+
+In the field of optimization, different packages like \href{https://github.com/JuliaNLSolvers/Optim.jl.git}{Optim.jl}, \href{https://github.com/mohamed82008/Nonconvex.jl.git}{Nonconvex.jl}, or \href{https://github.com/JuliaOpt/NLopt.jl.git}{NLOpt.jl} provide access to a variety of algorithms capable of optimizing multivariate functions written in or interfaced by \textit{Julia}.
+For gradient and hessian-based algorithms, various automatic differentiation backends like \href{https://github.com/JuliaDiff/ForwardDiff.jl.git}{ForwardDiff.jl}, \href{https://github.com/JuliaDiff/ReverseDiff.jl.git}{ReverseDiff.jl} or \href{https://github.com/FluxML/Zygote.jl.git}{Zygote.jl} can be used in the absence of analytical expressions.
+A more structured approach is provided by the \href{https://github.com/jump-dev/JuMP.jl.git}{JuMP.jl} organization, offering an domain-specific language (DSL) for rigorous modeling of optimization problems.\\
+
+Machine learning is prominently represented by \href{https://github.com/FluxML/Flux.jl.git}{Flux.jl} for (deep) neural networks. Next to \href{https://github.com/cstjean/ScikitLearn.jl.git}{SciKitLearn.jl} similar libraries like
+\href{https://github.com/alan-turing-institute/MLJ.jl.git}{MLJ.jl}, \href{https://github.com/JuliaStats/Clustering.jl.git}{Clustering.jl}, and \href{https://github.com/FluxML/FastAI.jl.git}{FastAI.jl} 
+offer common machine learning models.\\
+
+One of the most influential domains in \textit{Julia} is the numerical simulation domain, mainly the \href{https://sciml.ai/}{Scientific Machine Learning} organization with 76\footnotemark[8] packages registered on JuliaHub. It provides tooling for
+simulation via \href{https://github.com/SciML/DifferentialEquations.jl.git}{DifferentialEquations.jl}, \href{https://github.com/SciML/DiffEqFlux.jl.git}{neural ordinary differential equations}, \href{https://github.com/SciML/NeuralPDE.jl.git}{physics informed neural networks}, 
+and \href{https://github.com/SciML/DataDrivenDiffEq.jl.git}{data-driven estimation}. \href{https://github.com/SciML/ModelingToolkit.jl.git}{ModelingToolkit} builds upon \textit{Julia}'s \href{https://github.com/JuliaSymbolics/Symbolics.jl.git}{symbolic computation libraries} and 
+offers acausal component-based modeling, automatic code optimization and provides a backend for many DSL like \href{https://github.com/SciML/Catalyst.jl.git}{Catalyst.jl} for chemical reactions.\\
+
+While interoperability to \textit{Fortran} and \textit{C} is included in \textit{Julia}, various packages like \href{https://github.com/JuliaInterop/Cxx.jl.git}{Cxx.jl}, \href{https://github.com/JuliaInterop/RCall.jl.git}{RCall.jl}, 
+\href{https://github.com/JuliaPy/PyCall.jl.git}{PyCall}, and \href{https://github.com/JuliaInterop/CxxWrap.jl.git}{CxxWrap.jl} exist to wrap external code easily efficiently reducing the overhead of glue-code.\\
+\href{https://github.com/JuliaPackaging/BinaryBuilder.jl}{BinaryBuilder.jl} allows the generation of precompiled binaries as dependencies via virtual machines automatically.
+\newpage

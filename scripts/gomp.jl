@@ -1,4 +1,3 @@
-using LinearAlgebra: similar
 using LinearAlgebra, SparseArrays, Random, Statistics
 using Plots, Plots.PlotMeasures
 
@@ -66,27 +65,22 @@ y = A*x̂
 # Evaluate
 x = gomp(y, A, k_opt)
 
-# Check for different noise levels
-σ = var(A, dims = 2)
-Ã = similar(A)
-# Estimate and return sparsity
-sp_n = map(0:0.5:10.0) do i
-	Ã = A
-	for j in 1:size(A, 2)
-		Ã[:,j] .+= σ[j]*i*randn(length(y))
-	end
-	ỹ = Ã*x̂
-	norm(gomp(ỹ, Ã, k_opt), 0)
+# Check for different sparsties levels
+sp_n = map(0.01:0.01:0.2) do i
+	x̃ = sprandn(Float64, 100, i)
+	ỹ = A*x̃
+	norm(gomp(ỹ, A, 50, 1, ϵ = 0.01), 0), norm(x̃, 0)
 end
 
-
+gr()
 pl_1 = scatter(x̂, label = "Ground Truth", markeralpha = 0.5, xlabel = "Index", ylabel = "x", legend = :bottomright)
 scatter!(x, label = "Estimated", markershape = :cross, markersize = 12, markerstrokewidth = 5)
 savefig(joinpath(pwd(), "figures", "gomp.pdf"))
 
-pl_2 = scatter((0:0.01:1.0) .* 100.0, sp_n, xlabel = "Noise Level [% of Variance]", ylabel = "Nonzero Entries", label = "Recovered", legend = :bottomleft)
-plot!([0; 100], [k_opt; k_opt], linestyle = :dash, label = "Ground Truth")
-savefig(joinpath(pwd(), "figures", "gomp_noise.pdf"))
+xs, ys = first.(sp_n), last.(sp_n)
+pl_2 = scatter(ys, xlabel = "Run", ylabel = "Sparsity", label = "Ground Truth", legend = :topleft)
+scatter!(xs, label = "Estimated", markershape = :cross, markersize = 12, markerstrokewidth = 5)
+savefig(joinpath(pwd(), "figures", "gomp_vary.pdf"))
 
 plot(pl_1, pl_2, layout = (1,2), size = (900, 300), margins = 5mm)
 savefig(joinpath(pwd(), "figures", "merged.pdf"))

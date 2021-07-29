@@ -7,7 +7,7 @@ f(0.2, 1) # Returns 0.5272924240430484
 # Evaluate with a Float32
 f(0.2f0, 1) #Returns 0.5272924f0
 
-@code_warntype f(0.2, 1)
+@code_typed f(0.2, 1)
 
 f(im*0.2, 1f0) # 0.3526677021528701 + 0.1491055129382033im
 

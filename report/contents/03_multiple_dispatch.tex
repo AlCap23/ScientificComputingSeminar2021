@@ -3,12 +3,12 @@
 \label{JM:sec:JITOpt}
 
 A common complain of users new to \textit{Julia} is that is does not hold up to its promise of speed, often feels even slower than e.g. using \textit{Python} for the same 
-task. This chapter gives a brief explanation on why this is the case, how performance should and can be measured, and how to optimize code for performance. Consider the following code
+task. This chapter gives a brief explanation on why this is the case, how performance should and can be measured and how to optimize code for performance. Consider the following code
 
 \lstinputlisting[language=Julia,firstline=1, lastline=15]{../scripts/optimizing_code.jl}
 
-Where the @time macro\footnote{A macro transforms the AST of the program. A exhausting introduction has been given at JuliaCon 2021 CITE. Interested readers might also refer to \cite{JMKwong2020}.}
-returns basic performance metrics about the function call like overall execution time, memory allocations and compilation time.
+Here the @time macro\footnote{A macro transforms the abstract syntax tree of the program. Interested readers might also refer to \cite{JMKwong2020}.}
+returns basic performance metrics about the function call like overall execution time, memory allocations, and compilation time.
 
 \begin{lstlisting}[language=Julia]
     0.016432 seconds (6.08 k allocations: 342.705 KiB, 99.78% compilation time)
@@ -23,7 +23,8 @@ Another execution of the same command holds a different result.
 The reason is \textit{Julia}'s underlying just-in-time (JIT) compilation. On the first call of the method $g$, 
 the code is lowered to machine instructions and stored in memory for the specific types of arguments. This means that the first 
 call of a method has an additional overhead due to the effort of the LLVM \cite{JMLattnerAdve2004} compiler\footnote{Which is also the reason for the infamous time to first plot benchmark in \textit{Julia}}.
-The second call of a method leverages the already compiled function and can be executed and benchmarked faster. A slight change of arguments shows that this process is indeed type specific.
+The second call of a method leverages the already compiled function and can be executed and benchmarked faster. 
+A slight change of arguments shows that this process is indeed type-specific.
 
 \lstinputlisting[language=Julia,firstline=19, lastline=22]{../scripts/optimizing_code.jl}
 
@@ -33,29 +34,30 @@ Again, the compilation time is present and takes up most of the execution time
     0.100689 seconds (269.78 k allocations: 15.753 MiB, 10.07% gc time, 99.92% compilation time)
 \end{lstlisting}
 
-JIT compilation also exist for different languages, such as \textit{Python}, \textit{lua} or \textit{Matlab}\cite{JMMATLAB2010}, as an optional extension. However, most of the performance comes
-from compiler optimization at which \textit{Julia} exceeds performance-wise due to JIT being the standard. 
-A slightly outdated benchmark comparing different algorithms and languages can be found \href{https://julialang.org/benchmarks/}{at the micro-benchmark page.}\\
+JIT compilation also exists for different languages, such as \textit{Python}, \textit{lua} or \textit{Matlab}\cite{JMMATLAB2010}, as an optional extension. However, most of the performance comes
+from compiler optimization where \textit{Julia} exceeds performance-wise due to JIT being the standard. 
+A slightly outdated benchmark comparing different algorithms and languages can be found \href{https://julialang.org/benchmarks/}{on the micro-benchmark page.}\\
 
 \textit{Julia} is storing array-like data in a column major memory layout, which highly impacts the speed. The execution of the following
 code shows that a column major iteration can result in a high speedup, using the same array. 
 
 \lstinputlisting[language=Julia,firstline=24, lastline=46]{../scripts/optimizing_code.jl}
 
-Instead of using @time the performance metrics are derived via @btime \footnote{\href{https://github.com/JuliaCI/BenchmarkTools.jl}{BenchmarkTools.jl}}, which (possibly) evaluates the method over multiple trials.\\
+Instead of using @time the performance metrics are derived via @btime \footnote{\href{https://github.com/JuliaCI/BenchmarkTools.jl}{BenchmarkTools.jl}}, which evaluates the method over multiple trials, limited by the memory and time consumption of the function.\\
 
 To investiage the use of parallel processing, consider the example given in \cite[p. 178 ff.]{JMSengupta2019}
 
 \lstinputlisting[language=Julia,firstline=49, lastline=68]{../scripts/optimizing_code.jl}
 
 Both methods defined above are mutating, indicated by the exclamation mark at the end of the function. They modify the values of their first argument, the array $x$, overwriting it inplace with no further allocations.
-We see that the use of the second function, which leverages single-instruction-multiple-data (SIMD) and neglecting bounds checking holds a relative speedup of $4.18$. A similar syntax enables multithreading
+We see that the use of the second function, which leverages single-instruction-multiple-data (SIMD) - via {@simd} - and disableing the checking of bounds- via {@inbounds} - holds a relative speedup of $4.18$ in comparision to the first implementation. 
+A similar syntax enables multithreading
 
 \lstinputlisting[language=Julia,firstline=74, lastline=83]{../scripts/optimizing_code.jl}
 
 Which shows the ease of use, but the communication time dominates the execution time and no speedup is achieved. Likwise, computations can be moved from the CPU to the GPU using different pacakges \cite[p.204 ff.]{JMSengupta2019}.
 
-
+\newpage
 
 
 

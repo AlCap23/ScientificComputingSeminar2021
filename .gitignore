@@ -17,3 +17,6 @@ report/contents/*.aux
 
 
 
+report/FMA-Vorlage.run.xml
+report/FMA-Vorlage.bcf
+report/FMA-Vorlage.out
